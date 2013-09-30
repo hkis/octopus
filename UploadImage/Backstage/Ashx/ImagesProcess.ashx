@@ -36,11 +36,9 @@ public class ImagesProcess : IHttpHandler {
         if (action.ToLower() == "upload")
         {
             var fileData = context.Request.Files["filedata"];
-            localPath = context.Request["path"];
-            extName = localPath.Substring(localPath.LastIndexOf("."));
+            localPath = fileData.FileName;
+            extName = localPath.Substring(localPath.LastIndexOf(".")).ToLower();
             var fileType=Config.ReadSetting("fileType","");
-             
-            
             
             if(!Config.ReadSetting("fileType","").ToString().Contains(extName))
             {
@@ -52,11 +50,8 @@ public class ImagesProcess : IHttpHandler {
                 context.Response.End();
             }
 
-            filePath = "http://smop.staff.ifeng.com/images/"+ uid + extName;
-            
-            ApplicationLog.WriteInfo("执行4"+filePath);
-            fileData.SaveAs(context.Server.MapPath("../images/"+uid+extName));
-            ApplicationLog.WriteInfo("执行5" );
+            filePath = "http://smop.staff.ifeng.com/images/"+ uid + ".jpg";
+            fileData.SaveAs(context.Server.MapPath("../images/" + uid + ".jpg"));
             
             using (Image img = Image.FromStream(fileData.InputStream))
             { 
@@ -65,7 +60,7 @@ public class ImagesProcess : IHttpHandler {
                 {
                     if(!string.IsNullOrEmpty(filePath))
                     {
-                         f=new System.IO.FileInfo(context.Server.MapPath("../images/"+uid+extName));
+                         f=new System.IO.FileInfo(context.Server.MapPath("../images/"+uid+".jpg"));
                          if (f.Length > 4 * 1024*1000)
                          {
                              //strResult = "{\"result\":false,\"errCode\":E02,\"path\":'" + filePath + "'}";
@@ -97,66 +92,79 @@ public class ImagesProcess : IHttpHandler {
         }
         else if (action.ToLower() == "cut")
         {
-            ApplicationLog.WriteInfo("开始截图");
             int width = Convert.ToInt32(context.Request["width"]);
             int height = Convert.ToInt32(context.Request["height"]);
             int top =Convert.ToInt32(context.Request["top"]);
             int left =Convert.ToInt32(context.Request["left"]);
             uid=context.Request["uid"];
-            localPath = context.Request["path"];
-            ApplicationLog.WriteInfo("begin....-----path="+localPath);
-            extName = localPath.Substring(localPath.LastIndexOf("."));
-            ApplicationLog.WriteInfo("begin....-----");
-            if (context.Request["isZoom"] != null || context.Request["isZoom"] != "")
+            //localPath = context.Request["path"];
+            //extName = localPath.Substring(localPath.LastIndexOf("."));
+            if (context.Request["isZoom"] == "false")
             {
-                //加载原图
-                using(Image oldImg=Image.FromFile(context.Server.MapPath("../images/"+uid+extName)))
+                try
                 {
-                    //判断截图尺寸是否大于原图
-                    if(width>oldImg.Width||height>oldImg.Height)
+                    //加载原图
+                    using (Image oldImg = Image.FromFile(context.Server.MapPath("../images/" + uid + ".jpg")))
                     {
-                        ResultData rd=new ResultData(){result=false,errCode="E04"};
-                        result=serializer.Serialize(rd);
-                        context.Response.Write(result);
-                    }
-                    ImageUtils imgUtils = new ImageUtils();
-                    using (Bitmap bitMap = imgUtils.CutBitmap(oldImg, width, height, top, left))
-                    {
-                        bitMap.Save(context.Server.MapPath("../images/"+uid+extName));
-                        filePath = "http://smop.staff.ifeng.com/images/" + uid + extName;
-                        ResultData cutResultData = new ResultData() { result=true,path=filePath};
-                        strResult = @"<script type='text/javascript'>"
-                                + "window.parent.imgData ='" + result + "';"
-                                + "window.parent.loadFun();</script>";
-                    }
-                }    
-            }
-            else// if (context.Request["isZoom"] == "true")
-            {
-                ApplicationLog.WriteInfo("缩放截图begin....");
-                using (Image img = Image.FromFile(context.Server.MapPath("../images" + uid + extName)))
-                {
-                    Size size = new Size();
-                    ImageUtils imgUtilsMangr = new ImageUtils();
-                    
-                    size.Height = Convert.ToInt32(context.Request["imgHeight"]);
-                    size.Width = Convert.ToInt32(context.Request["imgWidth"]);
-                    ApplicationLog.WriteInfo("缩放截图processing...");
-                    using (Image imgCut = imgUtilsMangr.ResizeImage(img, size))
-                    {
-                        ApplicationLog.WriteInfo("processing...缩放完成");
-                        using (Bitmap b = imgUtilsMangr.CutBitmap(imgCut, width, height, top, left))
+                        //判断截图尺寸是否大于原图
+                        if (width > oldImg.Width || height > oldImg.Height)
                         {
-                            b.Save(context.Server.MapPath("../images/" + uid + extName));
-                            filePath = "http://smop.staff.ifeng.com/images/" + uid + extName;
-
-                            ResultData curResultData = new ResultData() {result=true,path=filePath };
-                            strResult=@"<script type='text/javascript'>"
-                                + "window.parent.imgData ='" + result + "';"
-                                + "window.parent.loadFun();</script>";
+                            ResultData rd = new ResultData() { result = false, errCode = "E04" };
+                            result = serializer.Serialize(rd);
+                            context.Response.Write(result);
+                        }
+                        ImageUtils imgUtils = new ImageUtils();
+                        using (Bitmap bitMap = imgUtils.CutBitmap(oldImg, width, height, left, top))
+                        {
+                            bitMap.Save(context.Server.MapPath("../images/" + uid + ".jpg"));
+                            filePath = "http://smop.staff.ifeng.com/images/" + uid + ".jpg";
+                            ResultData cResultData = new ResultData() { result = true, path = filePath };
+                            result = serializer.Serialize(cResultData);
+                            strResult = @"<script type='text/javascript'>"
+                                    + "window.parent.imgData ='" + result + "';"
+                                    + "window.parent.loadFun();</script>";
+                            ApplicationLog.WriteInfo("输出数据，data=" + strResult);
                         }
                     }
-                    
+                }
+                catch (Exception ex)
+                {
+                    string errMsg = ex.Message.ToString();
+                    ApplicationLog.WriteInfo(errMsg);
+                }
+            }
+            else if (context.Request["isZoom"] == "true")
+            {
+                try
+                {
+                    using (Image img = Image.FromFile(context.Server.MapPath("../images/" + uid + ".jpg")))
+                    {
+                        Size size = new Size();
+                        ImageUtils imgUtilsMangr = new ImageUtils();
+
+                        size.Height = Convert.ToInt32(context.Request["imgHeight"]);
+                        size.Width = Convert.ToInt32(context.Request["imgWidth"]);
+                        using (Image imgCut = imgUtilsMangr.ResizeImage(img, size))
+                        {
+                            ApplicationLog.WriteInfo("processing...缩放完成" + "width:" + width + "height:" + height + "top:" + top + "left:" + left);
+                            using (Bitmap b = imgUtilsMangr.CutBitmap(imgCut, width, height, left, top))
+                            {
+                                b.Save(context.Server.MapPath("../images/" + uid + "_cut.jpg"));
+                                filePath = "http://smop.staff.ifeng.com/images/" + uid + "_cut.jpg";
+                                ApplicationLog.WriteInfo("processing...缩放后重新截图完成,filePath" + filePath);
+
+                                ResultData curResultData = new ResultData() { result = true, width = width, height = height, path = filePath };
+                                strResult = serializer.Serialize(curResultData);
+                                ApplicationLog.WriteInfo("输出数据，data=" + strResult);
+                            }
+                        }
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    string msg = ex.Message.ToString();
+                    ApplicationLog.WriteError(msg);
                 }
             }
         }

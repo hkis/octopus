@@ -41,7 +41,9 @@ public class ImageUtils
             g.CompositingQuality = CompositingQuality.HighQuality;
             g.DrawImage(oldImage, new Rectangle(0, 0, width, height), new Rectangle(x, y, width, height), GraphicsUnit.Pixel);
             g.Save();
+            g.Dispose();
         }
+        newBitmap.Dispose();
         return newBitmap;
     }
 
@@ -80,7 +82,7 @@ public class ImageUtils
         g.InterpolationMode = InterpolationMode.HighQualityBicubic;
         g.DrawImage(imgToResize, 0, 0, destWidth, destHeight);
         g.Dispose();
-
+        newBitMap.Dispose();
         return (Image)newBitMap;
     }
 }
