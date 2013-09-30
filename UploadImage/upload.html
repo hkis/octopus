@@ -6,25 +6,35 @@
 <script type="text/javascript" src="js/jquery.1.4.4.min.js"></script>
 <script type="text/javascript" src="js/uploadImg.js"></script>
 <script type="text/javascript">
-var ImageUpload = new ImageUpLoad('png jpg jpeg',0.9);
-var imgData = '';
-$(document).ready(function(){
-    $('#imgFile').change(function(e){
-        $('#path').val($('#imgFile')[0].value);
-        if($('#imgFile')[0].value){
-            if(ImageUpload.init($('#imgFile')[0].value)){
-                $('#img_form').submit();
-                $('#loading').fadeIn(1);
-            }else{
-                alert('允许上传的图片格式为jpg，jpeg，png');
-            }
-        }
-    });
-})
+UpImg.init();
 //这个函数是C#来调用的
 function loadFun(){
-    ImageUpLoad.prototype.imageControl('#preview',imgData);
+    UpImg.append({parEle:$('#preview'),fn:function(arg){
+        var imgS = new UpImg.imgSizing(arg);//图片大小调整，使其不超出可视区域
+        var imgSvalue = imgS.imgSpecification;
+        
+        $('#preview img').css(imgSvalue);
+
+        //截取框大小和坐标调整，使截取框
+        var cutS = new UpImg.cutImg({parEle:$('#preview'),cutPro:UpImg.cutPro,width:imgSvalue.width,height:imgSvalue.height,imgLeft:imgSvalue.left,imgTop:imgSvalue.top,fn:submitShow});
+        
+        //为截图框添加拖动功能  这里需要添加限制区域要求截图框既不能超出图片大小也不能超出可视区域大小
+        new UpImg.drag({pro:0.9,moveBar:$('#cutDiv'),imgEle:$('#preview img'),parEle:$('#preview'),moveBarIds:'top left bottom right top_left top_right bottom_left bottom_right'});
+        //为截图功能添加鼠标中轴缩放功能
+        new UpImg.scroll({eventEle:[$('#preview img'),$('#cutDiv')],parEle:$('#preview')});
+        
+        //按钮显示出来之后，点击实现提交功能
+        function submitShow(){
+            $('#submit').fadeIn(50);
+            $('#submit').click(function(){
+                cutS.submitCutData({parentEle:$('#preview'),parEle:$('#preview img'),cutDiv:$('#cutDiv'),url:'/Backstage/Ashx/ImagesProcess.ashx',fu:hideSubmit});
+            });
+        }
+    }});
     $('#loading').fadeOut(1);
+}
+function hideSubmit(){
+    $('#submit').fadeOut(20);
 }
 </script>
 <title>图片上传</title>
@@ -33,9 +43,8 @@ function loadFun(){
 <body>
 <iframe name="ifr" id="iframe_hidden"></iframe>
 <div id="parent">
-    <form id="img_form" name="imgForm" enctype="multipart/form-data" action="upload.php" target="ifr" method="post" >
+    <form id="img_form" name="imgForm" enctype="multipart/form-data" action="/Backstage/Ashx/ImagesProcess.ashx" target="ifr" method="post" >
         <input type="hidden" name="uid" value="binggege" />
-        <input type="hidden" name="path" id="path" />
         <input type="hidden" name="action" value="upload" />
         <label id="action">请上传格式为jpeg，jpg或png的图片：</label>
         <input type="file" name="filedata" id="imgFile" />
