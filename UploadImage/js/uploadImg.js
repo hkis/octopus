@@ -1,38 +1,31 @@
-/**
+﻿/**
 *图片上传
 *创建者 ： 赵亚兵
 *创建日期 ： 2013.9.23
 *修改人 ： XXX
 *修改日期 ： XXXX.XX.XX
 */
-var imgData,zoomOr = false;
-var UpImg = {
-    allowTypes : 'jpg jpeg png',
-    cutPro : 0.9,
-    siteUrl : '',
-    borderWidth : 0
-};
-UpImg.init = function(){
-    $(document).ready(function(){
-        //首先屏蔽选中
-        $(document).bind('selectstart',function(){
-             document.selection && document.selection.empty && ( document.selection.empty(), 1) || window.getSelection && window.getSelection().removeAllRanges();
-             return false;
-        });
-        $('#imgFile').change(function(e){
-            var url = $('#imgFile')[0].value;
-            if(url){
-                if(UpImg.checkType({url:url,allowTypes:UpImg.allowTypes})){
-                    $('#img_form').submit();
-                    $('#loading').fadeIn(1);
-                }else{
-                    alert('允许上传的图片格式为jpg，jpeg，png');
-                }
-            }
-        });
-    })
+function UpImg(arg){
+    this.nSpace = arg.nSpace || 'body'; // 命名空间
+    this.allowTypes = arg.allowTypes || 'jpg jpeg png';// 允许上传的图片格式
+    this.fileEle = arg.fileEle || '';//监听change事件的file元素
+    this.fn = arg.fn || '';//上传前需要执行的操作
+    this.init();//执行默认执行的操作
 }
-
+UpImg.prototype.init = function(){
+    var that = this;
+    $(that.fileEle).change(function(e){
+        var url = $(this)[0].value;
+        if(url){
+            if(that.checkType({url:url,allowTypes:that.allowTypes})){
+                $(this).parents('form').submit();
+                if(that.fn){that.fn();}
+            }else{
+                alert('允许上传的图片格式为jpg，jpeg，png');
+            }
+        }
+    });
+}
 /*
 *图片格式检测
 *参数格式 arg = {{url:'',allowTypes:''}  url：上传的图片路径 allowTypes：允许上传的图片格式，以空格连接
@@ -40,7 +33,7 @@ UpImg.init = function(){
 *输出 检测通过输出true，失败返回false 
 *例：UpImg.checkType({url:'../img/xsxsa.jpg',allowTypes:'jpg jpeg png'})
 ****/
-UpImg.checkType = function(arg){
+UpImg.prototype.checkType = function(arg){
     arg = $.extend({url:'',allowTypes:''},arg);
     if(!arg.url){
         throw new Error('传入参数出错，图片上传路径属性不能为空');
@@ -54,24 +47,24 @@ UpImg.checkType = function(arg){
         return true;
     }
 }
-
 /*
 *将图片添加入标签中
 *参数格式 {parEle:$('body'),fn:''}  parEle：图片添加进去的父标签 默认为body标签  fn：添加进去后的操作
 *****/
-UpImg.append = function(arg){
+UpImg.prototype.append = function(arg){
     arg = $.extend({parEle:$('body'),fn:''},arg);
-    var data = $.parseJSON(imgData);
+    var that = this;
+    var data = $.parseJSON(that.imgData);
     if(data){
         if(data.result){
             var width = data.width,height = data.height,parEle = arg.parEle;
             parEle.html('<img src="'+data.path+'" width="'+width+'" height="'+height+'" ondragstart="return false" />');
             if(arg.fn){
-                arg.fn({width:width,height:height,parWidth:parEle.width(),parHeight:parEle.height()});
+                arg.fn({width:width,height:height,parEle:parEle});
                 width = height = parEle = null;
             }
         }else{
-            var str ='',errorCode = data.errcode;
+            var str ='',errorCode = data.errCode;
             if(errorCode == 'E01'){
                 str = '图片格式不正确';
             }else if(errorCode == 'E02'){
@@ -87,22 +80,28 @@ UpImg.append = function(arg){
         }
     }
 }
-
 /*
 *元素大小调整，使其在可视区域内完全显示
 *参数格式 arg={width:100,height:200,parWidth:50,parHeight:100}
 ***/
-UpImg.imgSizing = function(arg){
+ImgSizing = function(arg){
     this.arg = arg;
+    if(!arg.parEle){
+        throw new Error('参数应该指定可视区域');
+        return false;
+    }
     this.imgSpecification = this.init();// 图片规格，包括大小，坐标
 }
-UpImg.imgSizing.prototype.init = function(){
+ImgSizing.prototype.init = function(){
     var arg = this.arg,
         imgWidth = arg.width,//元素宽度
         imgHeight = arg.height,//元素高度
-        maxWidth = arg.parWidth,//可视区域宽度
-        maxHeight = arg.parHeight;//可视区域高度
-
+        maxWidth = arg.parEle.width(),//可视区域宽度
+        maxHeight = arg.parEle.height();//可视区域高度
+    if(!maxWidth * maxHeight){
+        throw new Error('可视区域应该制定宽度和高度');
+        return false;
+    }
     var por1 = maxWidth / maxHeight,
         por2 = imgWidth / imgHeight;
         
@@ -114,7 +113,6 @@ UpImg.imgSizing.prototype.init = function(){
             imgWidth = maxWidth;
             imgHeight = parseInt(maxWidth / por2);
         }
-        zoomOr = true;
     }
     var imgLeft = (maxWidth - imgWidth)/2,
         imgTop = (maxHeight - imgHeight)/2;
@@ -122,17 +120,20 @@ UpImg.imgSizing.prototype.init = function(){
 }
 /*
 *截取框实例
-*参数格式  arg={cutPro:0.9,width:200,height:300}
+*参数格式  arg={cutPro:0.9,width:200,height:300,imgLeft:0,imgTop:0,fn:function(){}})}
 * cutPro ： 截取框宽高比例
 * width ：所要截取的图片宽度
 * height：所要截取的图片高度
+* imgLeft：图片左坐标
+* imgTop：图片top坐标
+* fn：截图框添加完后执行的操作
 ****/
-UpImg.cutImg = function(arg){
+CutImg = function(arg){
     this.arg = arg;
     this.cutPro = arg.cutPro;
     this.cutSpecification = this.init();// 截取框规格，包括大小，坐标
 }
-UpImg.cutImg.prototype.init = function(){
+CutImg.prototype.init = function(){
     var arg = this.arg,
         imgWidth = arg.width,//元素宽度
         imgHeight = arg.height,//元素高度
@@ -150,7 +151,7 @@ UpImg.cutImg.prototype.init = function(){
     this.addCutDiv({parEle:arg.parEle,left:cutLeft,top:cutTop,width:cutWidth,height:cutHeight});
 }
 //将截图框添加进去
-UpImg.cutImg.prototype.addCutDiv = function(arg){
+CutImg.prototype.addCutDiv = function(arg){
     var cutS = arg;
     arg = arg || {};
     if(arg.parEle){
@@ -160,7 +161,7 @@ UpImg.cutImg.prototype.addCutDiv = function(arg){
             +'<div id="center_x"></div><div id="center_y"></div></div>'
         );
         arg.parEle.fadeIn(50);
-        var cutDiv = $('#cutDiv'),borderWidth = cutDiv.outerWidth() - cutDiv.width();
+        var cutDiv = arg.parEle.find('#cutDiv'),borderWidth = cutDiv.outerWidth() - cutDiv.width();
         if(borderWidth > 0){
             UpImg.borderWidth = borderWidth;
             cutDiv.css({width:cutS.width - borderWidth,height:cutS.height - borderWidth});
@@ -174,7 +175,7 @@ UpImg.cutImg.prototype.addCutDiv = function(arg){
     }
 }
 //提交截图数据，包括图片大小，截图坐标和截图区域大小
-UpImg.cutImg.prototype.submitCutData = function(arg){
+CutImg.prototype.submitCutData = function(arg){
     var arg = arg || {};
     if(!arg.parEle || !arg.cutDiv || !arg.url){
         throw new Error('传入参数出错，请指定截取框所要元素以及提交路径');
@@ -182,10 +183,9 @@ UpImg.cutImg.prototype.submitCutData = function(arg){
     }
     var parEle = arg.parEle,
         cutDiv = arg.cutDiv;
-
     var data = 'imgWidth=' + parEle.width() + '&imgHeight=' + parEle.height() +
         '&top=' + parseInt(parseInt(cutDiv.css('top')) - parseInt(parEle.css('top'))) + '&left=' + parseInt(parseInt(cutDiv.css('left')) - parseInt(parEle.css('left'))) +
-        '&width=' + cutDiv.outerWidth() + '&height=' + cutDiv.outerHeight() + '&action=cut&uid=binggege&isZoom='+zoomOr;
+        '&width=' + cutDiv.outerWidth() + '&height=' + cutDiv.outerHeight() + '&action=cut&uid='+arg.uid+'&isZoom='+zoomOr;
     parEle = cutDiv = null;
     $.ajax({
         type:'post',
@@ -198,22 +198,22 @@ UpImg.cutImg.prototype.submitCutData = function(arg){
         }
     })
 }
-
 /*
 *拖动功能
-*参数格式 arg={pro:0.9,moveBar:$('#cutDiv'),moveContent:'',imgEle:$('#preview img'),parEle:$('#preview'),moveBarIds:'top left bottom right top_left top_right bottom_left bottom_right'}
+*参数格式 arg={pro:0.9,moveBar:$('#cutDiv'),imgEle:$('#preview img'),parEle:$('#preview'),moveBarIds:'top left bottom right top_left top_right bottom_left bottom_right'}
 *其中pro：比例，moveBar是鼠标按下后能实现拖动的标签，moveContent是一定的标签，如果为空则与moveBar相同
 *imgEle，parEle必须同时存在或者同时不存在，这里是为截图限制区域添加的属性，如果只是为了拖动，只需要前两个或者第一个属性
 *moveBarIds:调整大小的id总和
 *具体实现参看功能实现实例
 ****/
-UpImg.drag = function (arg){
+Drag = function (arg){
     this.arg = arg;
     this.img = arg.imgEle;
+    this.moveBar = '';
     this.init();//获取截图框的坐标
 }
 
-UpImg.drag.prototype = {
+Drag.prototype = {
     constructor : UpImg.drag,
     init : function(){
         var $this = this;
@@ -222,28 +222,32 @@ UpImg.drag.prototype = {
             throw new Error('传入参数出错，必须最少指定moveBar参数');
             return false;
         }
-        var elementToDrag = this.arg.moveBar,
-            moveNode = this.arg.moveContent || elementToDrag;//如果没有需要移动的父标签，则默认的选取当前鼠标点击标签为移动对象
+        var elementToDrag = this.arg.moveBar;
         var deltaX = deltaY = 0;
         var resizeStr = $this.arg.moveBarIds;
-        $this.moveBar = moveNode;
+        $this.moveBar = elementToDrag;
         elementToDrag.bind('mousedown',function(e){
-            
-            $this.startLeft = parseInt(moveNode.css('left'));
-            $this.startTop = parseInt(moveNode.css('top'));
-            $this.startWidth = moveNode.width();
-            $this.startHeight = moveNode.height();
-            $this.clientX = e.clientX;
-            $this.clientY = e.clientY;
-            
             deltaX = e.clientX - elementToDrag[0].offsetLeft;//初始化
             deltaY = e.clientY - elementToDrag[0].offsetTop;//初始化
             var offset = $this.img.getParentOffset();
             if(resizeStr.indexOf(e.target.id) > -1){
-                $(document).bind('mousemove',{iD:e.target.id,imgEle:$this.arg.imgEle,parEle:$this.arg.parEle},$this._resizeHandler);
+                $(document).bind('mousemove',{
+                    iD:e.target.id,
+                    imgEle:$this.arg.imgEle,
+                    moveNode:elementToDrag,
+                    parEle:$this.arg.parEle,
+                    
+                    startLeft:parseInt(elementToDrag.css('left')),
+                    startTop:parseInt(elementToDrag.css('top')),
+                    startWidth:elementToDrag.width(),
+                    startHeight:elementToDrag.height(),
+                    clientX:e.clientX,
+                    clientY:e.clientY,
+                    pro:$this.arg.pro
+                },$this._resizeHandler);
                 $(document).bind('mouseup',$this._resizeFinish);
             }else{
-                $(document).bind('mousemove',{dX:deltaX,dY:deltaY,moveNode:moveNode,imgEle:$this.arg.imgEle,parEle:$this.arg.parEle},$this._moveHandler);
+                $(document).bind('mousemove',{dX:deltaX,dY:deltaY,moveNode:elementToDrag,imgEle:$this.arg.imgEle,parEle:$this.arg.parEle},$this._moveHandler);
                 $(document).bind('mouseup',{moveBar:elementToDrag},$this._upHandler);
     			if(elementToDrag[0].attachEvent){
     				elementToDrag[0].setCapture();
@@ -288,7 +292,7 @@ UpImg.drag.prototype = {
 	},
     _upHandler:function(e){
 		//移除所有事件
-        var $this = UpImg.drag,cutDiv = $this.cutDiv;
+        var $this = Drag,cutDiv = $this.moveBar;
 		$(document).unbind('mousemove',$this._moveHandler);
 		$(document).unbind('mouseup',$this._upHandler);
         var elementToDrag = e.data.moveBar;
@@ -308,123 +312,131 @@ UpImg.drag.prototype = {
             topC = e.clientY - $this.clientY,
             startWidth = $this.startWidth,
             startHeight = $this.startHeight,
+            cutDiv = D.moveNode,
             imgEle = D.imgEle || '', 
             parEle = D.parEle || '',
-            borderWidth = $this.moveBar.outerWidth() - $this.moveBar.width();
+            borderWidth = cutDiv.outerWidth() - cutDiv.width();
+            $this.startLeft = D.startLeft;
+            $this.startTop = D.startTop;
+            $this.startWidth = D.startWidth;
+            $this.startHeight = D.startHeight;
+            $this.clientX = D.clientX;
+            $this.clientY = D.clientY;
+            $this.pro = D.pro;
         switch (tarId){
             case 'left':
-                cutObj = $this._resizeLeft(leftC,topC,startWidth,startHeight);
+                cutObj = $this._resizeLeft(leftC,topC,startWidth,startHeight,cutDiv);
                 break;
             case 'right':
-                cutObj = $this._resizeRight(leftC,topC,startWidth,startHeight);
+                cutObj = $this._resizeRight(leftC,topC,startWidth,startHeight,cutDiv);
                 break;
             case 'top':
-                cutObj = $this._resizeTop(leftC,topC,startWidth,startHeight);
+                cutObj = $this._resizeTop(leftC,topC,startWidth,startHeight,cutDiv);
                 break;
             case 'bottom':
-                cutObj = $this._resizeBottom(leftC,topC,startWidth,startHeight);
+                cutObj = $this._resizeBottom(leftC,topC,startWidth,startHeight,cutDiv);
                 break;
             case 'bottom_right':
-                cutObj = $this._resizeBottom_right(leftC,topC,startWidth,startHeight);
+                cutObj = $this._resizeBottom_right(leftC,topC,startWidth,startHeight,cutDiv);
                 break;
             case 'bottom_left':
-                cutObj = $this._resizeBottom_left(leftC,topC,startWidth,startHeight);
+                cutObj = $this._resizeBottom_left(leftC,topC,startWidth,startHeight,cutDiv);
                 break;
             case 'top_right':
-                cutObj = $this._resizeTop_right(leftC,topC,startWidth,startHeight);
+                cutObj = $this._resizeTop_right(leftC,topC,startWidth,startHeight,cutDiv);
                 break;
             case 'top_left':
-                cutObj = $this._resizeTop_left(leftC,topC,startWidth,startHeight);
+                cutObj = $this._resizeTop_left(leftC,topC,startWidth,startHeight,cutDiv);
                 break;
         }
-        if(imgEle && parEle && $this._incaseHide(cutObj,imgEle,parEle)){
-            $this.resizeFrameFun();
+        if(imgEle && parEle && $this._incaseHide(cutObj,imgEle,parEle,cutDiv)){
+            $this.resizeFrameFun(cutDiv);
         }
         if(!imgEle && !parEle){
-            $this.moveBar.css({'left':cutObj.L,'top':cutObj.T,'width':cutObj.W - borderWidth,'height':cutObj.H - borderWidth});
+            cutDiv.css({'left':cutObj.L,'top':cutObj.T,'width':cutObj.W - borderWidth,'height':cutObj.H - borderWidth});
         }
         imgEle = parEle = null;
     },
-    _resizeLeft : function(leftC,topC,startWidth,startHeight){
-        var $this = that,cutObj = {},moveBar = $this.moveBar;
+    _resizeLeft : function(leftC,topC,startWidth,startHeight,cutDiv){
+        var $this = that,cutObj = {},moveBar = cutDiv;
         cutObj.L = $this.startLeft + leftC;
         var changeH = startHeight;
         cutObj.W = startWidth - leftC;
-        cutObj.H = parseInt(cutObj.W / $this.arg.pro);
+        cutObj.H = parseInt(cutObj.W / $this.pro);
         changeH -= cutObj.H;
         cutObj.T = $this.startTop + changeH/2;
         moveBar = null;
         return cutObj;
     },
-    _resizeRight : function(leftC,topC,startWidth,startHeight){
-        var $this = that,cutObj = {},moveBar = $this.moveBar;
+    _resizeRight : function(leftC,topC,startWidth,startHeight,cutDiv){
+        var $this = that,cutObj = {},moveBar = cutDiv;
         var changeH = startHeight;
         cutObj.W = leftC + startWidth;
-        cutObj.H = parseInt(cutObj.W / $this.arg.pro);
+        cutObj.H = parseInt(cutObj.W / $this.pro);
         changeH -= cutObj.H;
         cutObj.T = $this.startTop + changeH/2;
         cutObj.L = $this.startLeft;
         moveBar = null;
         return cutObj;
     },
-    _resizeTop : function(leftC,topC,startWidth,startHeight){
-        var $this = that,cutObj = {},moveBar = $this.moveBar;
+    _resizeTop : function(leftC,topC,startWidth,startHeight,cutDiv){
+        var $this = that,cutObj = {},moveBar = cutDiv;
         cutObj.T = $this.startTop + topC;
         var changeW = startWidth;
         cutObj.H = startHeight - topC;
-        cutObj.W = parseInt(cutObj.H * $this.arg.pro);
+        cutObj.W = parseInt(cutObj.H * $this.pro);
         changeW -= cutObj.W;
         cutObj.L = $this.startLeft + changeW/2;
         moveBar = null;
         return cutObj;
     },
-    _resizeBottom : function(leftC,topC,startWidth,startHeight){
-        var $this = that,cutObj = {},moveBar = $this.moveBar;
+    _resizeBottom : function(leftC,topC,startWidth,startHeight,cutDiv){
+        var $this = that,cutObj = {},moveBar = cutDiv;
         var changeW = startWidth;
         cutObj.H = topC + startHeight;
-        cutObj.W = parseInt(cutObj.H * $this.arg.pro);
+        cutObj.W = parseInt(cutObj.H * $this.pro);
         changeW -= cutObj.W;
         cutObj.L = $this.startLeft + changeW/2;
         cutObj.T = $this.startTop;
         moveBar = null;
         return cutObj;
     },
-    _resizeBottom_right : function(leftC,topC,startWidth,startHeight){
-         var $this = that,cutObj = {},moveBar = $this.moveBar;
+    _resizeBottom_right : function(leftC,topC,startWidth,startHeight,cutDiv){
+         var $this = that,cutObj = {},moveBar = cutDiv;
          cutObj.W = startWidth + leftC;
-         cutObj.H = parseInt(cutObj.W / $this.arg.pro);
+         cutObj.H = parseInt(cutObj.W / $this.pro);
          cutObj.L = $this.startLeft;
          cutObj.T = $this.startTop;
          return cutObj;
     },
-    _resizeBottom_left : function(leftC,topC,startWidth,startHeight){
-        var $this = that,cutObj = {},moveBar = $this.moveBar;
+    _resizeBottom_left : function(leftC,topC,startWidth,startHeight,cutDiv){
+        var $this = that,cutObj = {},moveBar = cutDiv;
         cutObj.W = startWidth - leftC;
-        cutObj.H = parseInt(cutObj.W / $this.arg.pro);
+        cutObj.H = parseInt(cutObj.W / $this.pro);
         cutObj.L = $this.startLeft + leftC;
         cutObj.T = $this.startTop;
         return cutObj;
     },
-    _resizeTop_right : function(leftC,topC,startWidth,startHeight){
-        var $this = that,cutObj = {},moveBar = $this.moveBar;
+    _resizeTop_right : function(leftC,topC,startWidth,startHeight,cutDiv){
+        var $this = that,cutObj = {},moveBar = cutDiv;
         cutObj.W = startWidth + leftC;
-        cutObj.H = parseInt(cutObj.W / $this.arg.pro);
+        cutObj.H = parseInt(cutObj.W / $this.pro);
         var changeH = cutObj.H - startHeight;
         cutObj.L = $this.startLeft;
         cutObj.T = $this.startTop - changeH;
         return cutObj;
     },
-    _resizeTop_left : function(leftC,topC,startWidth,startHeight){
-        var $this = that,cutObj = {},moveBar = $this.moveBar;
+    _resizeTop_left : function(leftC,topC,startWidth,startHeight,cutDiv){
+        var $this = that,cutObj = {},moveBar = cutDiv;
         cutObj.W = startWidth - leftC;
-        cutObj.H = parseInt(cutObj.W / $this.arg.pro);
+        cutObj.H = parseInt(cutObj.W / $this.pro);
         var changeH = cutObj.H - startHeight;
         cutObj.L = $this.startLeft + leftC;
         cutObj.T = $this.startTop - changeH;
         return cutObj;
     },
-    _incaseHide : function(cutObj,imgEle,parEle){
-        var $this = that,borderWidth = $this.moveBar.outerWidth() - $this.moveBar.width();
+    _incaseHide : function(cutObj,imgEle,parEle,cutDiv){
+        var $this = that,borderWidth = cutDiv.outerWidth() - cutDiv.width();
         var imgLeft = parseInt(imgEle.css('left')),
             imgTop = parseInt(imgEle.css('top')),
             imgWidth = imgEle.width(),
@@ -441,10 +453,10 @@ UpImg.drag.prototype = {
         if(cutObj.L < minLeft){
             return false;
         }
-        if(cutObj.W + borderWidth + cutObj.L > maxLeft || cutObj.W <= 50){
+        if(cutObj.W + borderWidth + cutObj.L > maxLeft || cutObj.W <= 10){
             return false;
         }
-        if(cutObj.H + borderWidth + cutObj.T > maxTop || cutObj.H <= 50){
+        if(cutObj.H + borderWidth + cutObj.T > maxTop || cutObj.H <= 10){
             return false;
         }
         $this.cutLeft = cutObj.L;
@@ -464,9 +476,9 @@ UpImg.drag.prototype = {
 		}
         cutDiv.css({'opacity': 0.3,'filter':'alpha(opacity=30)'});
     },
-    resizeFrameFun : function(){
+    resizeFrameFun : function(cutDiv){
         var $this = that;
-        $this.moveBar.css({'left':$this.cutLeft,'top':$this.cutTop,'width':$this.cutWidth,'height':$this.cutHeight});
+        cutDiv.css({'left':$this.cutLeft,'top':$this.cutTop,'width':$this.cutWidth,'height':$this.cutHeight});
     }
 }
 
@@ -475,26 +487,29 @@ UpImg.drag.prototype = {
 *参数格式  arg = {eventEle:[$('#preview img'),$('#cutDiv')],parEle:$('#preview')}； 
 *参数说明，第一个参数为一个数组，数组长度为二，第一个是图片，也就是缩放的元素，第二个为截图框，第二个参数为可视区域
 *********************/
-UpImg.scroll = function(arg){
+function Scroll(arg){
     this.arg = arg;
     this.init();//初始化
 }
 
-UpImg.scroll.prototype = {
-    constructor : UpImg.scroll,
+Scroll.prototype = {
+    constructor : Scroll,
     init : function(){
         $$this = this;
-        var eles = this.arg.eventEle;
-        $$this.moveBar = eles[1];
-        $$this.imgPro = eles[0].width() / eles[0].height();//图片原始比例
-        $$this.imgLeft = parseFloat(eles[0].css('left'));
-        $$this.imgTop = parseFloat(eles[0].css('top'));
-        if($$this.arg.parEle){
-            $$this.frameWidth = $$this.arg.parEle.width();
-            $$this.frameHeight = $$this.arg.parEle.height();
-        }
+        
+        var eles = $$this.arg.eventEle;
+        var parEle = $$this.arg.parEle
         for(var i = 0,j = eles.length; i < j; i++){
             eles[i].mouseover(function(e){
+                $$this.moveBar = eles[1];
+                $$this.imgPro = eles[0].width() / eles[0].height();//图片原始比例
+                $$this.imgLeft = parseFloat(eles[0].css('left'));
+                $$this.imgTop = parseFloat(eles[0].css('top'));
+                $$this.img = eles[0];
+                if($$this.arg.parEle){
+                    $$this.frameWidth = parEle.width();
+                    $$this.frameHeight = parEle.height();
+                }
                 $$this.bindScroll($(this),$$this.scrollFun);
             });
         }
@@ -522,7 +537,7 @@ UpImg.scroll.prototype = {
     },
     //调整图片坐标以及图片大小，已使得图片以鼠标为中心点进行缩放
     resizeImage : function(zoom,e){
-        var $this = $$this;
+        var $this = this;
         clearTimeout($this.timer);
         $this.timer = setTimeout(Resize,25);
         var min = false;
@@ -532,26 +547,29 @@ UpImg.scroll.prototype = {
                 cutHeight = $this.moveBar.height();
         }
         function Resize(){
-            var img = $this.arg.eventEle[0];
-            var offset = $(img).getParentOffset();
+            var img = $this.img;
+            var offset = img.getParentOffset();
             zoom = (zoom>0) ? 1.2 : 0.8;
             var width = img.width(),height = 0;
             width = parseInt(width * zoom);
             height = parseInt(width / $this.imgPro);
+            var widthYu = heightYu = 0;
             if(width < cutWidth + border){
                 width = cutWidth + border * 2;
                 height = parseInt((width - border * 2) / $this.imgPro) + border * 2;
+                widthYu = cutWidth + border - width;
                 min = true;
             }else if(height < cutHeight + border){
                 height = cutHeight + border * 2;
                 width = parseInt((height - border * 2) * $this.imgPro) + border * 2;
+                heightYu = cutHeight + border - height;
                 min = true;
             }
             $this.imgWidth = width; $this.imgHeight = height;
             if(!min){
                 var left = e.clientX - offset.left,top = e.clientY - offset.top;
-                $this.imgLeft -= (parseInt(left * zoom) -left);
-                $this.imgTop -= (parseInt(top * zoom) -top);
+                $this.imgLeft -= (parseInt(left * zoom) -left + widthYu/2);
+                $this.imgTop -= (parseInt(top * zoom) -top + heightYu/2);
                 img.css({'left':$this.imgLeft,'top':$this.imgTop,'width':$this.imgWidth,'height':$this.imgHeight});
             }else{
                 img.css({'width':$this.imgWidth,'height':$this.imgHeight});
@@ -559,7 +577,7 @@ UpImg.scroll.prototype = {
             if($this.moveBar){
                 $this.cutLeft = $this.imgLeft + ($this.imgWidth - cutWidth) / 2;
                 $this.cutTop = $this.imgTop + ($this.imgHeight - cutHeight) / 2;
-                if($$this.frameWidth * $$this.frameHeight){
+                if($this.frameWidth * $this.frameHeight){
                     $this.cutLeft = $this.cutLeft < 0 ? 0 : $this.cutLeft + cutWidth + border > $this.frameWidth ? $this.frameWidth - cutWidth - border : $this.cutLeft;
                     $this.cutTop = $this.cutTop < 0 ? 0 : $this.cutTop + cutHeight + border > $this.frameHeight ? $this.frameHeight - cutHeight - border : $this.cutTop;
                 }
@@ -568,7 +586,7 @@ UpImg.scroll.prototype = {
         }
     }
 }
-//扩展避免选中的接口
+//对jquery功能进行的扩展
 $.fn.extend({
     //获取当前标签相对于浏览器框的左右坐标
     getParentOffset : function(){
@@ -579,5 +597,12 @@ $.fn.extend({
            top += parObj.offsetTop;
        }       
        return {left:left,top:top};
+    },
+    //屏蔽选中
+    forbidSelect : function(){
+        $(this).bind('selectstart',function(){
+             document.selection && document.selection.empty && ( document.selection.empty(), 1) || window.getSelection && window.getSelection().removeAllRanges();
+             return false;
+        });
     }
 });
