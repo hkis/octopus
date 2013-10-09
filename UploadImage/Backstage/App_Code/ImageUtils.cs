@@ -43,7 +43,6 @@ public class ImageUtils
             g.Save();
             g.Dispose();
         }
-        newBitmap.Dispose();
         return newBitmap;
     }
 
@@ -78,11 +77,12 @@ public class ImageUtils
         int destHeight = (int)(sourceHeight * nPercent);
 
         Bitmap newBitMap = new Bitmap(destWidth, destHeight);
-        Graphics g = Graphics.FromImage((Image)newBitMap);
-        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-        g.DrawImage(imgToResize, 0, 0, destWidth, destHeight);
-        g.Dispose();
-        newBitMap.Dispose();
+        using (Graphics g = Graphics.FromImage((Image)newBitMap))
+        {
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            g.DrawImage(imgToResize, 0, 0, destWidth, destHeight);
+            g.Dispose();
+        }
         return (Image)newBitMap;
     }
 }
