@@ -6,69 +6,93 @@
 <script type="text/javascript" src="js/jquery.1.4.4.min.js"></script>
 <script type="text/javascript" src="js/uploadImg.js"></script>
 <script type="text/javascript">
-var imgData = '',UpImages,UpImages1,zoomOr = true
-//禁止document中任何元素选中
-$(document).forbidSelect();
-$(document).ready(function(e){
-    UpImages = new UpImg({
-        nSpace:'#parent',
-        fileEle:'#parent #imgFile',
-        allowTypes:'jpg jpeg png',
-        fn:function(){$('#parent #loading').fadeIn(1);}
-    });
-    UpImages1 = new UpImg({
-        nSpace:'#parent1',
-        fileEle:'#parent1 #imgFile',
-        allowTypes:'jpg jpeg png'/*,
-        fn:function(){alert('开始上传');}*/
-    });
+var imgData = '',UpImages,UpImages1;
+$(document).ready(function(){
+    //禁止选中
+    Bing.forbidSelect();
+    UpImages = new Bing.UpImg({fileEle:'#parent #imgFile',allowTypes:'jpg jpeg png',fn:function(){$('#parent #loading').fadeIn(1);}});
 })
-//这个函数是C#来调用的
 function loadFun(){
-    UpImages.imgData = imgData;
-    UpImages.append({parEle:$('#parent #preview'),fn:function(arg){  
-        var imgS = new ImgSizing(arg);//图片大小调整，使其不超出可视区域
-        var imgSvalue = imgS.imgSpecification;
+    UpImages._append({parEle:$('#parent #preview'),data:imgData,fn:function(arg){
+        var imgSvalue = new Bing.ImgSizing(arg);//图片大小调整，使其不超出可视区域
         $('#parent #preview img').css(imgSvalue);
-
+        
         //截取框大小和坐标调整，使截取框
-        var cutS = new CutImg({parEle:$('#parent #preview'),cutPro:0.9,width:imgSvalue.width,height:imgSvalue.height,imgLeft:imgSvalue.left,imgTop:imgSvalue.top,fn:submitShow});
+        var cutS = new Bing.CutImg({
+            parEle:$('#parent #preview'),
+            cutPro:0.9,
+            width:imgSvalue.width,
+            height:imgSvalue.height,
+            imgLeft:imgSvalue.left,
+            imgTop:imgSvalue.top,
+            fn:submitShow
+        });
+        cutS.addCutDiv(cutS.cutSpecification);
+        //按钮显示出来之后，点击实现提交功能
         
         //为截图框添加拖动功能  这里需要添加限制区域要求截图框既不能超出图片大小也不能超出可视区域大小
-        new Drag({pro:0.9,moveBar:$('#parent #preview #cutDiv'),imgEle:$('#parent #preview img'),parEle:$('#parent #preview'),moveBarIds:'top left bottom right top_left top_right bottom_left bottom_right'});
-        //为截图功能添加鼠标中轴缩放功能
-        new Scroll({eventEle:[$('#parent #preview img'),$('#parent #cutDiv')],parEle:$('#parent #preview')});
+        new Bing.Drag({pro:0.9,moveBar:$('#parent #preview #cutDiv'),imgEle:$('#parent #preview img'),parEle:$('#parent #preview'),moveBarIds:'top left bottom right top_left top_right bottom_left bottom_right'});
         
-        //按钮显示出来之后，点击实现提交功能
+        //为截图功能添加鼠标中轴缩放功能
+        new Bing.Scroll({eventEle:[$('#parent #preview img'),$('#parent #cutDiv')],parEle:$('#parent #preview')});
+        
         function submitShow(){
-	    $('#parent #submit').fadeIn(50);
+            $('#parent #submit').fadeIn(50);
             $('#parent #submit').one('click',function(){
                 cutS.submitCutData({parentEle:$('#parent #preview'),parEle:$('#parent #preview img'),cutDiv:$('#parent #cutDiv'),url:'http://smop.staff.ifeng.com/PhoenixWeb/Ashx/ImagesProcess.ashx',uid:$('#parent #uid').val(),fu:hideSubmit});
             });
         }
     }});
-    $('#loading').fadeOut(1);
+    $('#parent #loading').fadeOut(1);
 }
-function loadFun1(){
-    UpImages1.imgData = imgData;
-    UpImages1.append({parEle:$('#parent1 #preview'),fn:function(arg){
-        var imgS = new ImgSizing(arg);//图片大小调整，使其不超出可视区域
-        var imgSvalue = imgS.imgSpecification;
-        $('#parent1 #preview img').css(imgSvalue);
-        var cutS = new CutImg({parEle:$('#parent1 #preview'),cutPro:0.8,width:imgSvalue.width,height:imgSvalue.height,imgLeft:imgSvalue.left,imgTop:imgSvalue.top,fn:submitShow});
-        new Drag({pro:0.8,moveBar:$('#parent1 #preview #cutDiv'),imgEle:$('#parent1 #preview img'),parEle:$('#parent1 #preview'),moveBarIds:'top left bottom right top_left top_right bottom_left bottom_right'});
-        new Scroll({eventEle:[$('#parent1 #preview img'),$('#parent1 #cutDiv')],parEle:$('#parent1 #preview')});
-        function submitShow(){
-            $('#parent1 #submit').fadeIn(50);
-            $('#parent1 #submit').click(function(){
-                cutS.submitCutData({parentEle:$('#parent1 #preview'),parEle:$('#parent1 #preview img'),cutDiv:$('#parent1 #cutDiv'),url:'http://smop.staff.ifeng.com/PhoenixWeb/Ashx/ImagesProcess.ashx',uid:$('#parent1 #uid').val(),fu:hideSubmit1});
-            });
-        }
-    }});
-    $('#loading').fadeOut(1);
+function submitShow(){
+    console.log('添加进去了');
 }
 function hideSubmit(){
     $('#parent #submit').fadeOut(20);
+}
+
+
+
+
+
+
+
+$(document).ready(function(){
+    UpImages1 = new Bing.UpImg({fileEle:'#parent1 #imgFile',allowTypes:'jpg jpeg png',fn:function(){$('#parent1 #loading').fadeIn(1);}});
+})
+function loadFun1(){
+    UpImages1._append({parEle:$('#parent1 #preview'),data:imgData,fn:function(arg){
+        var imgSvalue = new Bing.ImgSizing(arg);//图片大小调整，使其不超出可视区域
+        $('#parent1 #preview img').css(imgSvalue);
+        //截取框大小和坐标调整，使截取框
+        var cutS = new Bing.CutImg({
+            parEle:$('#parent1 #preview'),
+            cutPro:0.9,
+            width:imgSvalue.width,
+            height:imgSvalue.height,
+            imgLeft:imgSvalue.left,
+            imgTop:imgSvalue.top,
+            fn:submitShow
+        });
+        cutS.addCutDiv(cutS.cutSpecification);
+        //按钮显示出来之后，点击实现提交功能
+         //为截图框添加拖动功能  这里需要添加限制区域要求截图框既不能超出图片大小也不能超出可视区域大小
+        new Bing.Drag({pro:0.9,moveBar:$('#parent1 #preview #cutDiv'),imgEle:$('#parent1 #preview img'),parEle:$('#parent1 #preview'),moveBarIds:'top left bottom right top_left top_right bottom_left bottom_right'});
+        //为截图功能添加鼠标中轴缩放功能
+        new Bing.Scroll({eventEle:[$('#parent1 #preview img'),$('#parent1 #cutDiv')],parEle:$('#parent1 #preview')});
+        
+        function submitShow(){
+            $('#parent1 #submit').fadeIn(50);
+            $('#parent1 #submit').one('click',function(){
+                cutS.submitCutData({parentEle:$('#parent1 #preview'),parEle:$('#parent1 #preview img'),cutDiv:$('#parent1 #cutDiv'),url:'http://smop.staff.ifeng.com/PhoenixWeb/Ashx/ImagesProcess1.ashx',uid:$('#parent1 #uid').val(),fu:hideSubmit1});
+            });
+        }
+    }});
+    $('#parent1 #loading').fadeOut(1);
+}
+function submitShow1(){
+    console.log('添加进去了');
 }
 function hideSubmit1(){
     $('#parent1 #submit').fadeOut(20);
@@ -80,7 +104,7 @@ function hideSubmit1(){
 <body>
 <iframe name="ifr" id="iframe_hidden"></iframe>
 <div id="parent">
-    <form id="img_form" name="imgForm" enctype="multipart/form-data" action="../../Ashx/ImagesProcess.ashx"  target="ifr" method="post" >
+    <form id="img_form" name="imgForm" enctype="multipart/form-data" action="http://smop.staff.ifeng.com/PhoenixWeb/Ashx/ImagesProcess.ashx" target="ifr" method="post" >
         <input type="hidden" name="uid" id="uid" value="binggege" />
         <input type="hidden" name="action" value="upload" />
         <label id="action">请上传格式为jpeg，jpg或png的图片：</label>
@@ -91,8 +115,8 @@ function hideSubmit1(){
     <input type="button" value="提交" id="submit" />
 </div>
 <div id="parent1">
-    <form id="img_form" name="imgForm" enctype="multipart/form-data" action="../../Ashx/ImagesProcess1.ashx"  target="ifr" method="post" >
-        <input type="hidden" name="uid" id="uid" value="hahhahahhah" />
+    <form id="img_form" name="imgForm" enctype="multipart/form-data" action="http://smop.staff.ifeng.com/PhoenixWeb/Ashx/ImagesProcess1.ashx" target="ifr" method="post" >
+        <input type="hidden" name="uid" id="uid"  value="hahhahahhah" />
         <input type="hidden" name="action" value="upload" />
         <label id="action">请上传格式为jpeg，jpg或png的图片：</label>
         <input type="file" name="filedata" id="imgFile" />
