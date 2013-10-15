@@ -66,7 +66,7 @@ Bing.tools = new Bing.demo();
                         parEle.html('<img src="'+data.path+'" width="'+width+'" height="'+height+'" ondragstart="return false" />');
                         //图片格式和外层可视区域的格式,这里要求图片不能超出可视区域的大小
                         var imgSpecification = {childWidth:width,childHeight:height,screenWidth:parEle.width(),screenHeight:parEle.height()};
-                        //调整图片格式
+                        //调整图片规格
                         imgSpecification = $this.tools.fitSpecification(imgSpecification);
                         parEle.find('img').css(imgSpecification);
                         $this.imgContent.fadeIn();
@@ -127,7 +127,7 @@ Bing.tools = new Bing.demo();
             this.tools.ajax(data);
             function successSubmit(data){
                 data = $.parseJSON(data);
-                parEle.parent().html('<img src='+data.path+' width='+data.width+' height='+data.height+' style="display:relative; margin:0 auto;" />');
+                parEle.parent().html('<img src="'+data.path+'" width="'+data.width+'" height="'+data.height+'" style="display:relative; margin:0 auto;" />');
                 if('fu' in arg){arg.fu();}
             }
             function errorSubmit(){
