@@ -179,5 +179,24 @@ $.fn.extend({
            top += parObj.offsetTop;
        }       
        return {left:left,top:top};
-    }
+    },
+    //添加js文件
+    addScriptEle : function(arg){
+        arg = $.extend({src:'',comFun:function(){console.log('js文件加载完毕');}},arg);
+        var script = $('<script type="text/javascript" src="'+arg.src+'"></script>')
+		$(this).append(script);
+		if(arg.comFun){
+            script = script[0];
+			/*if(script.readyState){
+				script.onreadystatechange=function(){//IE6
+					if(script.readyState=="loaded" || script.readyState=="complete"){
+						script.onreadystatechange=null;
+						comFun();
+					}
+				}
+			}else{*///Firefox ,Opera,Chrome,Safari3+,IE7+
+				script.onload=arg.comFun();
+		//	}
+		}
+	}
 });
