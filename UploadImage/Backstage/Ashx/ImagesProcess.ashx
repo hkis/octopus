@@ -41,7 +41,7 @@ public class ImagesProcess : IHttpHandler {
             if(!Config.ReadSetting("fileType","").ToString().Contains(extName))
             {
                 //strResult = "{\"result\":false,\"errCode\":'E01'}";
-                ResultData rData = new ResultData() { result=false,errCode="E01"};
+                ResultData rData = new ResultData() { result=false,errCode="图片格式不正确！"};
                 JavaScriptSerializer serializer = new JavaScriptSerializer();
                 
                 result = serializer.Serialize(rData);
@@ -49,7 +49,7 @@ public class ImagesProcess : IHttpHandler {
                 context.Response.End();
             }
 
-            filePath = "http://smop.staff.ifeng.com/images/"+ uid + ".jpg";
+            filePath = Config.ReadSetting("filePath", "") + uid + ".jpg";
             fileData.SaveAs(context.Server.MapPath("../images/" + uid + ".jpg"));
 
             //保存图片
@@ -102,6 +102,7 @@ public class ImagesProcess : IHttpHandler {
                 {
                     Size size = new Size();
                     ImageUtils imgUtilsMangr = new ImageUtils();
+                    MongoHelper mongoHelper = new MongoHelper();
 
                     size.Height = Convert.ToInt32(context.Request["imgHeight"]);
                     size.Width = Convert.ToInt32(context.Request["imgWidth"]);
@@ -110,11 +111,21 @@ public class ImagesProcess : IHttpHandler {
                         ApplicationLog.WriteInfo("processing...缩放完成" + "width:" + width + "height:" + height + "top:" + top + "left:" + left);
                         using (Bitmap b = imgUtilsMangr.CutBitmap(imgCut, width, height, left, top))
                         {
-                            b.Save(context.Server.MapPath("../images/" + uid + "_cut.jpg"));
-                            filePath = "http://smop.staff.ifeng.com/images/" + uid + "_cut.jpg";
+                            byte[] byteImg = imgUtilsMangr.ImageToByte(b);
+                            string ticks = DateTime.Now.Ticks.ToString();
+                            uid = uid + "-" + ticks;//截图ID命名规则：用户ID+"-"+时间戳
+                            
+                            //将图片存入MongoDB
+                            mongoHelper.SaveImgBJson(byteImg, uid);
+                            //从MongoDB中取出图片并转化为Base64编码
+                            
+                            string imgData = Convert.ToBase64String(mongoHelper.GetImgBJson(uid));
+                            imgData = "data:image/jpg;base64," + imgData;
+                            //b.Save(context.Server.MapPath("../images/" + uid + "_cut.jpg"));
+                            //filePath = "http://smop.staff.ifeng.com/images/" + uid + "_cut.jpg";
                             ApplicationLog.WriteInfo("processing...缩放后重新截图完成,filePath" + filePath);
 
-                            ResultData curResultData = new ResultData() { result = true, width = width, height = height, path = filePath };
+                            ResultData curResultData = new ResultData() { result = true, width = width, height = height, path = imgData };
                             strResult = serializer.Serialize(curResultData);
                             ApplicationLog.WriteInfo("输出数据，data=" + strResult);
                         }
@@ -136,22 +147,32 @@ public class ImagesProcess : IHttpHandler {
                     //判断截图尺寸是否大于原图
                     if (width > img.Width || height > img.Height)
                     {
-                        ResultData rd = new ResultData() { result = false, errCode = "E04" };
+                        ResultData rd = new ResultData() { result = false, errCode = "截图尺寸不能大于原图！" };
                         result = serializer.Serialize(rd);
                         strResult = @"<script type='text/javascript'>"
-                                + "window.parent.imgData ='" + result + "';"
-                                + "window.parent.loadFun();</script>";
+                                + "window.parent.Bing.imgData ='" + result + "';</script>";
                     }
                     ImageUtils imgUtils = new ImageUtils();
+                    MongoHelper mongoHelper = new MongoHelper();
                     using (Bitmap bitMap = imgUtils.CutBitmap(img, width, height, left, top))
                     {
-                        bitMap.Save(context.Server.MapPath("../images/" + uid + ".jpg"));
-                        filePath = "http://smop.staff.ifeng.com/images/" + uid + ".jpg";
-                        ResultData cResultData = new ResultData() { result = true, path = filePath };
+                        byte[] byteImg = imgUtils.ImageToByte(bitMap);
+
+                        string ticks = DateTime.Now.Ticks.ToString();
+                        uid = uid + "-" + ticks;//截图ID命名规则：用户ID+"-"+时间戳
+                        //将图片存入MongoDB
+                        mongoHelper.SaveImgBJson(byteImg, uid);
+                        
+                        //从MongoDB中取出图片并转化为Base64编码
+                        string imgData=Convert.ToBase64String(mongoHelper.GetImgBJson(uid));
+                        imgData = "data:image/jpg;base64," + imgData;
+                        
+                        //bitMap.Save(context.Server.MapPath("../images/" + uid + ".jpg"));
+                        //filePath = "http://smop.staff.ifeng.com/images/" + uid + ".jpg";
+                        ResultData cResultData = new ResultData() { result = true, path =imgData  };
                         result = serializer.Serialize(cResultData);
                         strResult = @"<script type='text/javascript'>"
-                                + "window.parent.imgData ='" + result + "';"
-                                + "window.parent.loadFun();</script>";
+                                + "window.parent.Bing.imgData ='" + result + "'</script>";
                         ApplicationLog.WriteInfo("输出数据，data=" + strResult);
                     }
                 }
@@ -180,7 +201,7 @@ public class ImagesProcess : IHttpHandler {
     private static string UploadImg(HttpContext context, string uid, HttpPostedFile fileData)
     {
         string strResult = string.Empty;
-        string filePath = "http://smop.staff.ifeng.com/images/" + uid + ".jpg";
+        string filePath = Config.ReadSetting("filePath", "") + uid + ".jpg";
         string result = string.Empty;
         JavaScriptSerializer serializer = new JavaScriptSerializer();
         
@@ -196,11 +217,10 @@ public class ImagesProcess : IHttpHandler {
                     if (f.Length > 4 * 1024 * 1000)
                     {
                         //strResult = "{\"result\":false,\"errCode\":E02,\"path\":'" + filePath + "'}";
-                        ResultData reData = new ResultData() { result = false, errCode = "E02", path = filePath };
+                        ResultData reData = new ResultData() { result = false, errCode = "图片不能大于4M！", path = filePath };
                         result = serializer.Serialize(reData);
                         strResult = @"<script type='text/javascript'>"
-                            + "window.parent.imgData ='" + result + "';"
-                            + "window.parent.loadFun();</script>";
+                            + "window.parent.Bing.imgData ='" + result + "';</script>";
                         context.Response.Write(strResult);
                         context.Response.End();
                     }
@@ -209,16 +229,15 @@ public class ImagesProcess : IHttpHandler {
                     result = serializer.Serialize(rData);
                     //{result:true,size:'" + f.Length + "',height:" + img.Height + ",width:" + img.Width + ",path:'" + filePath + "'}
                     strResult = @"<script type='text/javascript'>"
-                            + "window.parent.imgData ='" + result + "';"
-                            + "window.parent.loadFun();</script>";
+                            + "window.parent.Bing.imgData ='" + result + "';</script>";
 
                 }
             }
             catch (Exception ex)
             {
                 string errmsg = "读取文件失败,Info:" + ex.Message.ToString();
-                strResult = "{\"result\":false,\"errCode\":E03,\"path\":" + filePath + "}";
-                ResultData reData = new ResultData() { result = false, errCode = "E03", path = filePath };
+                //strResult = "{\"result\":false,\"errCode\":E03,\"path\":" + filePath + "}";
+                ResultData reData = new ResultData() { result = false, errCode = "图片读取失败！", path = filePath };
                 result = serializer.Serialize(reData);
                 context.Response.Write(result);
                 ApplicationLog.WriteError("获取图片大小失败,info:" + errmsg);

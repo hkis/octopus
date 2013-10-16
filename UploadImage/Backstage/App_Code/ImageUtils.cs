@@ -8,6 +8,8 @@ using System.Xml.Linq;
 using System.Drawing;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
+using System.Drawing.Imaging;
 
 /// <summary>
 ///ImageUtils 的摘要说明
@@ -84,5 +86,26 @@ public class ImageUtils
             g.Dispose();
         }
         return (Image)newBitMap;
+    }
+
+    /// <summary>
+    /// 将
+    /// </summary>
+    /// <param name="bitmap"></param>
+    /// <returns></returns>
+    public byte[] ImageToByte(Bitmap bitmap)
+    {
+        MemoryStream ms = null;
+        byte[] imgData = null;
+
+        using (ms = new MemoryStream())
+        {
+            bitmap.Save(ms, ImageFormat.Jpeg);
+            ms.Position = 0;
+            imgData = new byte[ms.Length];
+            ms.Read(imgData, 0, Convert.ToInt32(ms.Length));
+            ms.Flush();
+        }
+        return imgData;
     }
 }
