@@ -35,7 +35,7 @@ $(document).ready(function(){
         var UpImg3 = new Bing.UpImg({
             uid:'userName3',
             allowTypes:'png,jpg,jpeg',
-            imgPro:1.1,
+            imgPro:0.5,
             size:4,
             postUrl:uploadUrlAshx,
             className:'uploadImg',
@@ -50,7 +50,7 @@ $(document).ready(function(){
         var UpImg4 = new Bing.UpImg({
             uid:'userName4',
             allowTypes:'png,jpg,jpeg',
-            imgPro:1.1,
+            imgPro:1.5,
             size:4,
             postUrl:uploadUrlAshx,
             className:'uploadImg',
