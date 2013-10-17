@@ -82,6 +82,8 @@ public class ImageUtils
         using (Graphics g = Graphics.FromImage((Image)newBitMap))
         {
             g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.CompositingQuality = CompositingQuality.HighQuality;
             g.DrawImage(imgToResize, 0, 0, destWidth, destHeight);
             g.Dispose();
         }
@@ -100,7 +102,7 @@ public class ImageUtils
 
         using (ms = new MemoryStream())
         {
-            bitmap.Save(ms, ImageFormat.Jpeg);
+            bitmap.Save(ms, ImageFormat.Png);
             ms.Position = 0;
             imgData = new byte[ms.Length];
             ms.Read(imgData, 0, Convert.ToInt32(ms.Length));

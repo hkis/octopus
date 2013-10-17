@@ -49,8 +49,8 @@ public class ImagesProcess : IHttpHandler {
                 context.Response.End();
             }
 
-            filePath = Config.ReadSetting("filePath", "") + uid + ".jpg";
-            fileData.SaveAs(context.Server.MapPath("../images/" + uid + ".jpg"));
+            filePath = Config.ReadSetting("filePath", "") + uid + ".png";
+            fileData.SaveAs(context.Server.MapPath("../images/" + uid + ".png"));
 
             //保存图片
             strResult= UploadImg(context, uid, fileData);
@@ -98,7 +98,7 @@ public class ImagesProcess : IHttpHandler {
         {
             try
             {
-                using (img = Image.FromFile(context.Server.MapPath("../images/" + uid + ".jpg")))
+                using (img = Image.FromFile(context.Server.MapPath("../images/" + uid + ".png")))
                 {
                     Size size = new Size();
                     ImageUtils imgUtilsMangr = new ImageUtils();
@@ -120,7 +120,7 @@ public class ImagesProcess : IHttpHandler {
                             //从MongoDB中取出图片并转化为Base64编码
                             
                             string imgData = Convert.ToBase64String(mongoHelper.GetImgBJson(uid));
-                            imgData = "data:image/jpg;base64," + imgData;
+                            imgData = "data:image/png;base64," + imgData;
                             //b.Save(context.Server.MapPath("../images/" + uid + "_cut.jpg"));
                             //filePath = "http://smop.staff.ifeng.com/images/" + uid + "_cut.jpg";
                             ApplicationLog.WriteInfo("processing...缩放后重新截图完成,filePath" + filePath);
@@ -142,7 +142,7 @@ public class ImagesProcess : IHttpHandler {
         {
             try
             {
-                using (img = Image.FromFile(context.Server.MapPath("../images/" + uid + ".jpg")))
+                using (img = Image.FromFile(context.Server.MapPath("../images/" + uid + ".png")))
                 {
                     //判断截图尺寸是否大于原图
                     if (width > img.Width || height > img.Height)
@@ -165,7 +165,7 @@ public class ImagesProcess : IHttpHandler {
                         
                         //从MongoDB中取出图片并转化为Base64编码
                         string imgData=Convert.ToBase64String(mongoHelper.GetImgBJson(uid));
-                        imgData = "data:image/jpg;base64," + imgData;
+                        imgData = "data:image/png;base64," + imgData;
                         
                         //bitMap.Save(context.Server.MapPath("../images/" + uid + ".jpg"));
                         //filePath = "http://smop.staff.ifeng.com/images/" + uid + ".jpg";
@@ -201,7 +201,7 @@ public class ImagesProcess : IHttpHandler {
     private static string UploadImg(HttpContext context, string uid, HttpPostedFile fileData)
     {
         string strResult = string.Empty;
-        string filePath = Config.ReadSetting("filePath", "") + uid + ".jpg";
+        string filePath = Config.ReadSetting("filePath", "") + uid + ".png";
         string result = string.Empty;
         JavaScriptSerializer serializer = new JavaScriptSerializer();
         
@@ -213,7 +213,7 @@ public class ImagesProcess : IHttpHandler {
                 System.IO.FileInfo f = null;
                 if (!string.IsNullOrEmpty(filePath))
                 {
-                    f = new System.IO.FileInfo(context.Server.MapPath("../images/" + uid + ".jpg"));
+                    f = new System.IO.FileInfo(context.Server.MapPath("../images/" + uid + ".png"));
                     if (f.Length > 4 * 1024 * 1000)
                     {
                         //strResult = "{\"result\":false,\"errCode\":E02,\"path\":'" + filePath + "'}";
