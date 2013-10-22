@@ -1,0 +1,13 @@
+body{margin: 0px;padding: 0px;background-color: #FFF0AC;}
+
+.pdf-main-body{ cursor: move; margin:0px auto; padding:0px; width: 794px; list-style: none; position:relative;  display: block; box-shadow: 0 0 10px #000;font-family: Impact;}
+.pdf-main-body li{display:block; margin:0; padding:0px;overflow:hidden; position:relative; box-shadow: 0 0 2px #000;}
+.pdf-main-body li img{ margin:0px; vertical-align:bottom;}
+#test{height: 500px; overflow: hidden; width:200px;}
+.pdf-main-body li .pageNumber{ position:absolute; display:block; bottom:10px; text-align:center; width:100%; text-shadow: 0 0 2px #999; display:block;z-index:2;left:0px;}
+.pdf-main-body .loading{ background:url(../img/loading1.gif) no-repeat center center; right: 50px; bottom:100px; width:42px; height:42px; position:absolute; z-index:10;text-align:center;line-height: 120px;font-size: 15px;}
+.pdf-main-body .returnToTop{ width:41px; height:42px; background:url(../img/top.png); text-align: center; cursor:pointer; font-size:8px; position:absolute; z-index:10;}
+.titleBar{ position:absolute; width:100%; margin:0px auto; height:60px; background-color: #999; z-index:10; top:-10px; border-radius: 10px; line-height: 70px;}
+.titleBar > span{ margin:0px 10px ; font-family: 楷体; text-shadow:1px 1px 3px #FFF; color:#6C6C6C; font-size: 20px;}
+.titleBar span input{ width:2em; font-size: 20px;}
+#test{ width:600px; height:500px; border: 1px solid #000; overflow: auto;}
