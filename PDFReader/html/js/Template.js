@@ -492,151 +492,109 @@ Bing.tools = new Bing.demo();
     *PDF阅读器
     ****************************/
     Bing.PdfReader = function(arg){
-        this.arg = $.extend({uid:'',url:'',parent:$('body'),className:'',successFn:function(){},errorFn:function(){}},arg);
+        this.arg = $.extend({uid:'',url:'',parent:$('body'),className:'',thumbnails:true,successFn:function(){},errorFn:function(){}},arg);
         if(!this.arg.url){
             throw new Error('必须指定文件下载路径');
             return false;
         }
         this.tools = Bing.tools;//主要工具函数
-        this.nameSpace = $('<ul class="'+this.arg.className+'" ondragstart="return false;"><div class="returnToTop" style="display:none;"></div></ul>');//父标签
-        this.titleBar = $('<div class="titleBar"><span id="title"></span><span id="author"></span><span id="pages"><span>跳至 </span><input type="text" /><span id="sumPages"></span></span></div>');
+        this.nameSpace = $('<div class="'+this.arg.className+'"></div>');//命名空间
+        this.titleBar = $('<div class="titleBar"><span id="title"></span><span id="author"></span><span id="pages"><span>跳至 </span><input type="text" value="1" /><span id="sumPages"></span></span></div>');
+        this.loading = $('<span class="loading"></span>');
+        this.titleBar.append(this.loading);
+        this.mainHeight = 1122;
+        this.thumbnailsHeight = 226;
+        this.proportion = this.mainHeight/this.thumbnailsHeight;
+        this.mainBody = $('<div class="mainBody"></div>');
+        this.returnToTop = $('<div class="returnToTop" style="display:none"></div>');
+        this.thumbnails = (this.arg.thumbnails) ? $('<div class="thumbnails"></div>') : '';//判断是否需要显示缩略图
+        this.init();
+    };
+    Bing.PdfReader.displayImg = function(arg){
+        this.arg = $.extend({uid:'',url:'',parent:$('body'),success:function(){}},arg);
+        this.tools = Bing.tools;//主要工具函数
+        this.nameSpace = $('<ul ondragstart="return false;"></ul>');//父标签
         this.loadImgs = [];
         this.displayPages = {topPage:1,endPage:2};
-        this.defaultWidth = 600;
-        this.defaultHeight = 1122;
+        this.defaultHeight = this.arg.pageHeight;
         this.author = '这是文章的作者';
         this.title = '这是文章的标题';
         this.allNumber = 100;//这是总页数
+        this.loadIndex = '&&';
         this.loading = $('<div class="loading"></div>');
-        this._init();//默认执行的函数
+        this.init();//默认执行的函数
     };
     (function(){
-        var $this = Bing.PdfReader,
-            loadIndexs = '&&';//请求过的页面
-        function checkImgExist($this,arg,firstOr){
-            var indexS = '';
-            var par = $this.nameSpace,loading = $this.loading;
-            for(var i = arg.topPage,j = arg.endPage;i<=j;i++){
-                if(loadIndexs.indexOf('&&'+i+'&&') < 0 || par.find('li').length == 0){
-                    indexS +=(i+1)+',';
-                    loadIndexs += (i+'&&');
-                }
-            };
-            indexS = indexS.substring(0,indexS.length-1);
-            if(indexS){
-                $.ajax({
-                    type:'POST',
-                    data:'index='+indexS+'&firstOr='+firstOr,
-                    url:$this.arg.url,
-                    beforeSend:function(){
-                        par.append(loading);
-                    },
-                    success:function(d){
-                        d = $.parseJSON(d);
-                        if(d){
-                            if(!firstOr){//如果不是第一次请求，则返回简单的html
-                                addPages($this,d);
-                            }else{//如果不是返回格式为：{allNumber:,width:,height:,title:,author:,"pageContent":}
-                                firstRequest($this,d);
-                            }
-                        }
-                    }
-                });
-            }
-        };
-        function firstRequest($this,d){
-            var par = $this.nameSpace;
-            $this.defaultWidth = d.width;
-            $this.defaultHeight = d.height;
-            $this.author = d.author;
-            $this.title = d.title;
-            $this.allNumber = d.allNumber;
-            var titleBar = $this.titleBar;
-            titleBar.find('#title').text($this.title);
-            titleBar.find('#author').text($this.author);
-            titleBar.find('#sumPages').text('/'+$this.allNumber);
-            par.css('width',d.width);
-            var liSum = '',numSum = d.allNumber,height = d.height;
-            while(numSum--){
-                liSum += "<li style='height:"+height+"px'></li>";
-            }
-            par.append(liSum);
-            addPages($this,d);
-        };
-        function addPages($this,d){
-            var index = d.index.split(','),
-                d = d.pageContent.split('&&');
-            for(var i=0,j=index.length;i<j;i++){
-                if(d[i]){
-                    $this.arg.parent.find('li:eq('+(parseInt(index[i]) - 1)+')').append(d[i]);
-                }
-            }
-            $this.loading.remove();
-        };
         Bing.PdfReader.prototype = {
-            _init : function(){
-                var space = this.nameSpace;
+            constructor : Bing.PdfReader,
+            init : function(){
+                this.nameSpace.append(this.titleBar,this.thumbnails,this.mainBody);
+                this.arg.parent.append(this.nameSpace);
+                var mainBody = new Bing.PdfReader.displayImg({uid:this.arg.uid,url:this.arg.url,pageHeight:this.mainHeight,parent:this.mainBody,success:editTitleBar,main:this,type:'rich'});
+                var thumbnails = new Bing.PdfReader.displayImg({uid:this.arg.uid,url:this.arg.url,pageHeight:this.thumbnailsHeight,parent:this.thumbnails,success:'',type:'simple'});
+                
+                var $this = this;
+                thumbnails.nameSpace.click(function(e){
+                    var tar = e.target;
+                    var target = (tar.nodeName.toUpperCase() == "IMG") ? $(tar).parent() : $(tar);
+                    mainBody.scrollToPage(target.index(),$this.mainHeight,$this.mainBody);
+                });
+                function editTitleBar(d){
+                    var titleBar = $this.titleBar;
+                    titleBar.find('#title').text(d.title);
+                    titleBar.find('#author').text(d.author);
+                    titleBar.find('#sumPages').text('/'+d.allNumber);
+                }
+            }
+        };
+        Bing.PdfReader.displayImg.prototype = {
+            constructor : Bing.PdfReader.displayImg,
+            init : function(){
                 var parent = this.arg.parent;
                 var screenFa = this.returnClient(parent);
                 var screenHeight = this.screenHeight = screenFa.height;
                 var screenWidth = this.screenWidth = screenFa.width;
-                this.scrollBody = (parent.selector == 'body') ? $(window) : parent;
+                this.scrollBody = parent;
                 this.displayPages = this.tools.displayPages(screenHeight,this.defaultHeight,this.scrollBody.scrollTop());
-                this.titleBarFocusOr = false;
-                checkImgExist(this,this.displayPages,true);
-                var pageInput = this.titleBar.find('#pages input');
-                pageInput.val(this.displayPages.topPage+1);
-                var $this = this;$this.timer = '';
-                $this.scrollBody[0].onscroll = function(e){//这里使用原生监听，是因为IE8-不支持在修改scrollTop的情况下触发jquery的scroll事件
+                this.checkImgExist(this.displayPages,true);
+                parent.append(this.nameSpace);
+                if(this.arg.type == 'rich'){
+                    this.nameSpace.append(this.arg.main.returnToTop);
+                    var $this = this;
+                    this.arg.main.returnToTop.click(function(){
+                        $this.scrollBody.scrollTop(0);
+                    });
+                    this.jumpToPage(this.arg.main.titleBar.find('#pages input'),$this.scrollBody);
+                    this.movePage({downBody:this.nameSpace,scrollBody:this.scrollBody});
+                }
+                this.scrollEvent(this.scrollBody);
+            },
+            scrollEvent : function(arg){
+                var $this = this;
+                $this.timer = '';
+                arg[0].onscroll = function(e){//这里使用原生监听，是因为IE8-不支持在修改scrollTop的情况下触发jquery的scroll事件
                     e = e || window.event;
                     var scrollTop = $this.scrollBody.scrollTop();
-                    $this.titleBar.css({'top':scrollTop - 10,opacity:0});
-                    $this.loading.css({'top':scrollTop + screenHeight* 0.8 - 60,'right':screenWidth * 0.01,opacity:0});
-                    space.find('.returnToTop').css({'top':scrollTop + screenHeight* 0.8,'right':screenWidth * 0.01,opacity:0});
-                    clearTimeout($this.timer);
-                    $this.timer = setTimeout(loadImg,200);
-                    function loadImg(){
-                        $this.loading.css({opacity:1});
-                        space.find('.returnToTop').css({opacity:1});
-                        $this.hideTitleBar();
-                        if(scrollTop>=100){
-                            space.find('.returnToTop').fadeIn(100);
-                        }else{
-                            space.find('.returnToTop').fadeOut(100);
-                        }
-                        screenHeight = $this.screenHeight = $this.returnClient(parent).height;
-                        $this.displayPages = $this.tools.displayPages(screenHeight,$this.defaultHeight,scrollTop);
-                        checkImgExist($this,$this.displayPages,false);
-                        pageInput.val($this.displayPages.topPage+1);
+                    var parMain = $this.arg.main;
+                    if($this.arg.type == 'rich'){
+                        parMain.returnToTop.css('display','none');
                     }
-                }
-                space.append($this.titleBar);
-                parent.append(space);
-                //各种事件
-                space.find('.returnToTop').click(function(){
-                    $this.scrollBody.scrollTop(0);
-                });
-                pageInput.mouseup(function(){
-                    $(this).select();
-                });
-                pageInput.focus(function(){
-                    $this.titleBarFocusOr = true;
-                    $(this).bind('keydown',{input:$(this)},keyEnter)
-                });
-                pageInput.blur(function(){
-                    $this.titleBarFocusOr = false;
-                    $(this).unbind('keydown',{input:$(this)},keyEnter);
-                });
-                $this.titleBar.hover(function(){
-                    $this.displayTitleBar();
-                },function(){
-                    $this.hideTitleBar();
-                });
-                $this.movePage({downBody:space,scrollBody:$this.scrollBody});
-                function keyEnter(e){
-                    if(e.keyCode == 13){
-                        $this.scrollToPage(e.data.input.val() - 1,$this.defaultHeight);
-                        pageInput.blur();
+                    clearTimeout($this.timer);
+                    $this.timer = setTimeout(loadImg,100);
+                    function loadImg(){
+                        var arg = $this.arg;
+                        screenHeight = $this.screenHeight = $this.returnClient(arg.parent).height;
+                        $this.displayPages = $this.tools.displayPages(screenHeight,$this.defaultHeight,scrollTop);
+                        $this.checkImgExist($this.displayPages,false);
+                        if(arg.type == 'rich'){
+                            parMain.titleBar.find('input').val($this.displayPages.topPage + 1);
+                            parMain.thumbnails.scrollTop(scrollTop/parMain.proportion-250);
+                            parMain.nameSpace.find('li.hover').removeClass('hover');
+                            parMain.nameSpace.find('li:eq('+$this.displayPages.topPage+')').addClass('hover');
+                            if(scrollTop>0){
+                                parMain.returnToTop.css({top:scrollTop + screenHeight* 0.9}).fadeIn('fast');
+                            }
+                        }
                     }
                 }
             },
@@ -648,20 +606,82 @@ Bing.tools = new Bing.demo();
                     return {width:document.documentElement.clientWidth,height:document.documentElement.clientHeight}
                 }
             },
-            scrollToPage : function(val,pageHeight){
+            checkImgExist : function(arg,firstOr){
+                var indexS = '';
+                var par = this.nameSpace,loading = this.loading;
+                for(var i = arg.topPage,j = arg.endPage;i<=j;i++){
+                    if(this.loadIndex.indexOf('&&'+i+'&&') < 0 || par.find('li').length == 0){
+                        indexS +=(i+1)+',';
+                        this.loadIndex += (i+'&&');
+                    }
+                };
+                indexS = indexS.substring(0,indexS.length-1);
+                if(indexS){
+                    this.ajaxImg(indexS,firstOr);
+                }
+            },
+            ajaxImg : function(indexS,firstOr){
+                var $this = this;
+                $.ajax({
+                    type:'POST',
+                    data:'uid='+$this.arg.uid+'&index='+indexS+'&firstOr='+firstOr+'&type='+$this.arg.type,
+                    url:this.arg.url,
+                    beforeSend:function(){
+                        if($this.arg.type == 'rich'){
+                            $this.arg.main.loading.fadeIn('fast');
+                        }
+                    },
+                    success:function(d){
+                        d = $.parseJSON(d);
+                        if(d){
+                            if(!firstOr){//如果不是第一次请求，则返回简单的html
+                                $this.addPages(d);
+                            }else{//如果不是返回格式为：{allNumber:,width:,height:,title:,author:,"pageContent":}
+                                var par = $this.nameSpace;
+                                $this.author = d.author;
+                                $this.title = d.title;
+                                $this.allNumber = d.allNumber;
+                                var liSum = '',numSum = d.allNumber;
+                                while(numSum--){
+                                    liSum += "<li></li>";
+                                }
+                                par.append(liSum);
+                                $this.addPages(d);
+                                if($this.arg.type == 'rich'){
+                                    $this.arg.success(d);
+                                }
+                            }
+                        }
+                        if($this.arg.type == 'rich'){
+                            $this.loading.remove();
+                            $this.arg.main.loading.fadeOut('fast');
+                        }
+                    }
+                });
+            },
+            addPages : function(d){
+                var index = d.index.split(','),
+                    d = d.pageContent.split('&&');
+                for(var i=0,j=index.length;i<j;i++){
+                    if(d[i]){
+                        this.nameSpace.find('li:eq('+(parseInt(index[i]) - 1)+')').append(d[i]);
+                    }
+                }
+            },
+            jumpToPage : function(eventEle,scrollEle){
+                var $this = this;
+                eventEle.keydown(function(e){
+                    if(e.keyCode == 13){
+                        $this.scrollToPage($(this).val() - 1,$this.defaultHeight,scrollEle);
+                    }
+                })
+            },
+            scrollToPage : function(val,pageHeight,scrollEle){
                 if(typeof val == 'number'){
                     if(val > this.allNumber){
                         val = this.allNumber-1;
                     }
-                    this.scrollBody.scrollTop(val * pageHeight);
-                }
-            },
-            displayTitleBar : function(){
-                this.titleBar.animate({opacity:'1'});
-            },
-            hideTitleBar : function(){
-                if(!this.titleBarFocusOr){
-                    this.titleBar.animate({opacity:'0.4'});
+                    scrollEle.scrollTop(val * pageHeight);
                 }
             },
             movePage: function(arg){
@@ -678,6 +698,6 @@ Bing.tools = new Bing.demo();
                     arg.scrollBody.scrollTop(E.data.scrollTop - E.clientY + E.data.yClient);
                 }
             }
-        }
+        };
     })();
 })();

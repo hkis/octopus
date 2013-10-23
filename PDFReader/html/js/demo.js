@@ -165,6 +165,12 @@ var Bing = Bing || {};
             return {topPage:topPage,endPage:endPage};
         }
     }
+    Bing.extend = function(subClass,superClass){
+        var F = function(){};
+        F.prototype = superClass.prototype;
+        subClass.prototype = new F();
+        subClass.prototype.constructor = subClass;
+    }
 })();
 //扩展避免选中的接口
 $.fn.extend({
