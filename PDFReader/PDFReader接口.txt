@@ -2,6 +2,7 @@
 uid:用户id，
 index:需要获取的图片index，例如"1,2,3",要获取前三张图片
 firstOr：是否是第一次请求，firstOr="true"：第一次请求 firstOr="false"：不是第一次请求
+type : 判断是缩略图请求还是主图请求  "simple"为缩略图请求  "rich"为主图请求
 第一次请求返回数据格式  
 	{"index":返回的图片序列，还是以逗号连接,"allNumber":图片总数目,"title":文章题目,"author":作者,"pageContent":图片数据信息}
 		pageContent 例 ：“<img src='../pdfImages/Page1.jpg' /><span class='pageNumber'>1</span>&&<img src='../pdfImages/Page2.jpg' /><span class='pageNumber'>2</span>”
