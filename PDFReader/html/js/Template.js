@@ -539,6 +539,9 @@ Bing.tools = new Bing.demo();
                     var target = (tar.nodeName.toUpperCase() == "IMG") ? $(tar).parent() : $(tar);
                     mainBody.scrollToPage(target.index(),$this.mainHeight,$this.mainBody);
                 });
+                this.titleBar.find('#pages input').mouseup(function(){
+                    $(this).select();
+                });
                 function editTitleBar(d){
                     var titleBar = $this.titleBar;
                     titleBar.find('#title').text(d.title);
