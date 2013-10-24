@@ -1,12 +1,11 @@
 <?php
-sleep(1);
 $index = $_POST['index'];
 $type = $_POST['type'];
 $str = '';
 $numNow = explode(',',$index);
 if($type == 'rich'){
     for($i=0,$j=count($numNow);$i<$j;$i++){
-        $str .= "<img src='../pdfImages/Page".$numNow[$i].".jpg' /><span class='pageNumber'>----".$numNow[$i]."----</span>&&";
+        $str .= "<img src='../pdfImages/Page".$numNow[$i].".jpg' /><span class='pageNumber'>--".$numNow[$i]."--</span>&&";
     }
     if($_POST['firstOr'] != 'true'){
         echo '{"index":"'.$index.'","pageContent":"'.$str.'"}';

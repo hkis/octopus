@@ -1,22 +1,27 @@
-body{margin: 0px;padding: 0px;background-color: #FFF0AC;}
+body{margin: 0px;padding: 0px; overflow:hidden;}
 
-.pdf-main-body{position:relative; background-color: #CDCD9A; margin:0 auto; box-shadow:0 0 20px #000; height:750px; width:1050px;display:block; border-radius: 5px;}
-.pdf-main-body .thumbnails{width: 200px; height:96%; position:relative; float: left; box-shadow:0 0 10px #999 inset;overflow: auto;}
-.pdf-main-body .thumbnails ul{font-size: 12px; color:#333; margin:0px auto; width:100%; padding:0px; list-style: none; position:relative;  display: block; box-shadow: 0 0 10px #000;}
+.pdf-main-body{position:relative;font-family: Lucida Grande; background-color: #f2e4c7; margin:0 auto; box-shadow:0 0 20px #000; height:750px; width:1050px;display:block; border-radius: 5px;}
+/*缩略图*/
+.pdf-main-body .thumbnails{  background-color: #784646; width: 200px; height:96%; position:relative; float: left; box-shadow:0 0 10px #999 inset;overflow: auto;}
+.pdf-main-body .thumbnails ul{font-size: 12px; text-shadow: 0 0 1px #999; color:#000; margin:0px auto; width:100%; padding:0px; list-style: none; position:relative;  display: block; box-shadow: 0 0 10px #999;}
 .pdf-main-body .thumbnails ul li{ cursor: pointer; border-radius: 10px; width:100%; *width:92%; margin:0px; height:226px; padding:0px; display:block;position:relative;}
-.pdf-main-body .thumbnails ul li.hover{ background: #616130;}
-.pdf-main-body .thumbnails ul img{ width:150px; position: relative; margin:0 auto; display:block; vertical-align:bottom;}
+.pdf-main-body .thumbnails ul li.hover{ background: #AAA; box-shadow: 0 0 10px #784646 inset;}
+.pdf-main-body .thumbnails ul img{ box-shadow: 0 2px 10px #784646;width:150px; position: relative; margin:0 auto; display:block; vertical-align:bottom;}
 .pdf-main-body .thumbnails ul span{position:relative; display:block; text-align:center; width:150px; margin:0 auto;}
-.pdf-main-body .mainBody{width: 850px; height:96%; position:relative; float: left;overflow: auto;box-shadow:0 0 10px #999 inset;}
+/*主阅读窗*/
+.pdf-main-body .mainBody{ width:850px; height:96%; position:relative; float: right;overflow: auto;box-shadow:0 0 10px #999 inset;}
 .pdf-main-body .mainBody .returnToTop{ width:41px; height:42px; right:0px; background:url(../img/top.png); text-align: center; cursor:pointer; font-size:8px; position:absolute; z-index:10;}
-.pdf-main-body .mainBody ul{margin:0px auto; cursor:move; width:794px; padding:0px;list-style: none;position:relative;font-family: Impact; font-size:20px;}
-.pdf-main-body .mainBody li{margin:0px;padding:0px; height:1122px; position:relative;box-shadow: 0 0 2px #000;vertical-align:bottom;}
+.pdf-main-body .mainBody ul{ margin:0px auto; cursor:move; width:794px; padding:0px;list-style: none;position:relative; font-size:20px;}
+.pdf-main-body .mainBody li{ margin:0px;padding:0px; height:1122px; position:relative; vertical-align:bottom;}
+.pdf-main-body .mainBody li img{border-radius: 5px; box-shadow: 2px 2px 10px #000;}
 .pdf-main-body .mainBody li .pageNumber{ position:absolute; display:block; bottom:10px; text-align:center; width:100%; text-shadow: 0 0 2px #999; display:block;z-index:2;left:0px;}
-.pdf-main-body .titleBar{ position:relative; width:100%; margin:0px auto; height:4%; background-color: #999; z-index:10; box-shadow: 0px 1px 5px #999;}
-.pdf-main-body .titleBar > span{ margin:0px 10px ; font-family: 楷体; text-shadow:1px 1px 3px #FFF; color:#333; font-size: 15px;}
-.pdf-main-body .titleBar span input{ width:2em; font-size: 12px;}
-.pdf-main-body .titleBar .loading{ background:url(../img/loading1.gif) no-repeat center center; right: 30px; width:42px; display:none; height:42px; display:block;position:absolute; top:30px;}
-.pdf-main-body .titleBar .pageUpDown a{ font-size:20px; text-decoration: none; color:#000; position:absolute;padding:0px 5px 1px; margin:2px 3px 0px 2px; border: 1px solid #333; border-radius: 5px; background-color: #AAA;}
-.pdf-main-body .titleBar .pageUpDown a:hover{ color:#000; background-color: #AAA; box-shadow: 0 0 2px #333 inset; border: 1px solid #000;}
-.pdf-main-body .titleBar .pageUpDown .pageUp{left:360px;}
-.pdf-main-body .titleBar .pageUpDown .pageDown{ left: 400px;}
+/*头部*/
+.pdf-main-body .titleBar{ border-radius: 0 0 15px 0; position:relative; width:100%; margin:0px auto; height:50px; border-bottom:20px solid #784646; z-index:10; box-shadow: 0px 0px 10px #000;}
+.pdf-main-body .titleBar > span{ line-height:50px; margin:0px 10px ; font-family: Lucida Grande; text-shadow:0px 0px 1px #784646; color:#2c2c2c; font-size: 20px;}
+.pdf-main-body .titleBar span input{ border:1px solid #784646; border-radius: 5px; background:#f2e4c7; width:35px; font-size: 20px; text-align:right;}
+.pdf-main-body .titleBar span input::-moz-selection{ background: #784646; color: #f2e4c7;}
+.pdf-main-body .titleBar span input::selection{background: #784646; color: #f2e4c7;}
+.pdf-main-body .titleBar .loading{ background:url(../img/loading1.gif) no-repeat center center; right: 30px; width:42px; display:none; height:42px; display:block;position:absolute; top:4px;}
+.pdf-main-body .titleBar .pageUpDown{top:8px; left:450px; display:block; width:200px;position:absolute;}
+.pdf-main-body .titleBar .pageUpDown a{ float:left; line-height: 30px; height:30px; width:30px;box-shadow: 0 0 2px #333; text-align: center;font-size:20px; text-decoration: none; color:#784646; display:block;  margin:2px 3px 0px 2px; border: 1px solid #333; border-radius:5px 10px 2px 10px; background-color: #f2e4c7;}
+.pdf-main-body .titleBar .pageUpDown a:hover{ color:#f2e4c7; background-color: #784646; box-shadow: 0 0 2px #000 inset; border: 1px solid #000;}
