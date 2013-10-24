@@ -16,3 +16,7 @@ body{margin: 0px;padding: 0px;background-color: #FFF0AC;}
 .pdf-main-body .titleBar > span{ margin:0px 10px ; font-family: 楷体; text-shadow:1px 1px 3px #FFF; color:#333; font-size: 15px;}
 .pdf-main-body .titleBar span input{ width:2em; font-size: 12px;}
 .pdf-main-body .titleBar .loading{ background:url(../img/loading1.gif) no-repeat center center; right: 30px; width:42px; display:none; height:42px; display:block;position:absolute; top:30px;}
+.pdf-main-body .titleBar .pageUpDown a{ font-size:20px; text-decoration: none; color:#000; position:absolute;padding:0px 5px 1px; margin:2px 3px 0px 2px; border: 1px solid #333; border-radius: 5px; background-color: #AAA;}
+.pdf-main-body .titleBar .pageUpDown a:hover{ color:#000; background-color: #AAA; box-shadow: 0 0 2px #333 inset; border: 1px solid #000;}
+.pdf-main-body .titleBar .pageUpDown .pageUp{left:360px;}
+.pdf-main-body .titleBar .pageUpDown .pageDown{ left: 400px;}

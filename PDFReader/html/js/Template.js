@@ -22,7 +22,6 @@ Bing.tools = new Bing.demo();
                 imgContent = $('<div id="preview"></div>'),
                 submitButton = $('<input type="button" value="提交" id="submit" style="display:none" />'),
                 loading = $('<span id="loading" style="display:none;">图片上传中</span>');
-           
             Space.find('form').append(fileEle);
             Space.append(imgContent,submitButton,loading);
             
@@ -499,7 +498,7 @@ Bing.tools = new Bing.demo();
         }
         this.tools = Bing.tools;//主要工具函数
         this.nameSpace = $('<div class="'+this.arg.className+'"></div>');//命名空间
-        this.titleBar = $('<div class="titleBar"><span id="title"></span><span id="author"></span><span id="pages"><span>跳至 </span><input type="text" value="1" /><span id="sumPages"></span></span></div>');
+        this.titleBar = $('<div class="titleBar"><span id="title"></span><span id="author"></span><span id="pages"><span>跳至 </span><input type="text" value="1" /><span id="sumPages"></span></span><span class="pageUpDown"><a href="#" class="pageDown">+</a> <a href="#" class="pageUp">-</a></span></div>');
         this.loading = $('<span class="loading"></span>');
         this.titleBar.append(this.loading);
         this.mainHeight = 1122;
@@ -530,6 +529,7 @@ Bing.tools = new Bing.demo();
             init : function(){
                 this.nameSpace.append(this.titleBar,this.thumbnails,this.mainBody);
                 this.arg.parent.append(this.nameSpace);
+                
                 var mainBody = new Bing.PdfReader.displayImg({uid:this.arg.uid,url:this.arg.url,pageHeight:this.mainHeight,parent:this.mainBody,success:editTitleBar,main:this,type:'rich'});
                 var thumbnails = new Bing.PdfReader.displayImg({uid:this.arg.uid,url:this.arg.url,pageHeight:this.thumbnailsHeight,parent:this.thumbnails,success:'',type:'simple'});
                 
@@ -548,6 +548,15 @@ Bing.tools = new Bing.demo();
                     titleBar.find('#author').text(d.author);
                     titleBar.find('#sumPages').text('/'+d.allNumber);
                 }
+                this.titleBar.find('.pageUpDown').click(function(e){
+                    var tar = e.target,val = parseInt($this.titleBar.find('#pages input').val())-1;
+                    if(tar.className =="pageDown"){
+                        mainBody.scrollToPage(val+1,$this.mainHeight,$this.mainBody);
+                    }else if(tar.className =="pageUp"){
+                        mainBody.scrollToPage(val-1,$this.mainHeight,$this.mainBody);
+                    }
+                    return false;
+                });
             }
         };
         Bing.PdfReader.displayImg.prototype = {

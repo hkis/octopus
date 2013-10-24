@@ -1,4 +1,5 @@
 <?php
+sleep(1);
 $index = $_POST['index'];
 $type = $_POST['type'];
 $str = '';
