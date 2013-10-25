@@ -1,5 +1,7 @@
 ﻿var Bing = Bing || {};
-Bing.tools = new Bing.demo();
+if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始化浪费内存
+    Bing.tools = new Bing.demo();   
+}
 
 (function(){
     /*
@@ -83,7 +85,6 @@ Bing.tools = new Bing.demo();
                     this.screenWidth = this.arg.parent.outerWidth();
                     this.screenHeight = this.arg.parent.outerHeight();
                 }
-                //console.log(document.documentElement.clientWidth);
                 this.screenWidth = this.screenWidth > this.screenMinWidth ? this.screenWidth : this.screenMinWidth;
                 this.nameSpace.css({height:this.screenHeight,width:this.screenWidth});
                 this.mainBody.css({height:this.screenHeight - this.titleBar.outerHeight(),width:this.screenWidth - this.thumbnails.outerWidth()});

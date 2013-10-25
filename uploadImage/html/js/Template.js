@@ -1,5 +1,7 @@
 ﻿var Bing = Bing || {};
-Bing.tools = new Bing.demo();
+if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始化浪费内存
+    Bing.tools = new Bing.demo();   
+}
 
 (function(){
     Bing.UpImg = function(arg){
