@@ -1,14 +1,138 @@
 ﻿var Bing = Bing || {};
 if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始化浪费内存
     Bing.tools = new Bing.demo();   
-}
+};
 
 (function(){
     /*
     *PDF阅读器
     ****************************/
+    
+    Bing.Pdf = function(arg){
+        this.arg = $.extend({uid:'',allowTypes:'',uploadUrl:'',listUrl:'',loadImgUrl:'',className:'',parent:$('body')},arg);
+        if(!this.arg.loadImgUrl || !this.arg.uploadUrl || !this.arg.listUrl){
+            throw new Error('必须指定下载路径');
+            return false;
+        }
+        this.tools = Bing.tools;
+        this.uploadPdf = new Bing.PdfUpload(this.arg);
+        this.listPdf = new Bing.PdfList(this.arg);
+
+        var thisPDF = this,$$this = this.uploadPdf;
+        this.uploadPdf.successFun = function(){
+            var $this = $$this;
+            var timer = setInterval(checkLoaded,100);
+            function checkLoaded(){
+                if(Bing.templateData){
+                    clearInterval(timer);
+                    $this.removeLoading();
+                    thisPDF.listPdf.addList($.parseJSON(Bing.templateData));
+                    //alert('上传成功');
+                    delete Bing.templateData;
+                }
+            }
+        }
+    };
+    (function(){
+        Bing.PdfUpload = function(arg){
+            this.arg = $.extend({uid:'',allowTypes:'',uploadUrl:'',parent:$('body')},arg);
+            if(!this.arg.uploadUrl){
+                throw new Error('必须指定下载路径');
+                return false;
+            }
+            this.tools = Bing.tools;
+            this.loading = $('<img src="img/loading.gif" id="uploading" />');
+            this.nameSpace = $('<div class="form-pdf"></div>');//父标签
+            this.init();
+        };
+        Bing.PdfList = function(arg){
+            this.arg = $.extend({uid:'',listUrl:'',parent:$('body')},arg);
+            this.tools = Bing.tools;
+            this.nameSpace = $('<div class="pdfList"></div>');
+            this.tableList = $('<table cellspacing="0" cellpadding="0" width="100%"><tbody></tbody></table>');
+            this.init();
+        };
+        Bing.PdfUpload.prototype = {
+            init:function(){
+                var iframe = $('#iframe_hidden');//这里寻找页面中的iframe元素，为文件的“异步”提交做准备
+                if(iframe.length == 0){
+                   $('body').append('<iframe name="ifr" id="iframe_hidden" style="display:none"></iframe>');
+                }
+                iframe = null;
+                this.nameSpace.append('<form enctype="multipart/form-data" action="'+this.arg.uploadUrl+'" id="pdfForm" target="ifr" method="post" ><label>添加新的PDF文件</label><input type="hidden" name="Uid" value="'+this.arg.uid+'"/><input type="file" name="FileData" /><input type="submit" value="提交" /></form>');
+                this.appendToDisplay();
+                this.submit();
+            },
+            submit : function(){
+                var $this = this;
+                $this.nameSpace.find('form').submit(function(){
+                    var fileUrl = $(this).find('input[type=file]').val();
+                    if(!$this.tools.isNeedFile({file:fileUrl.toLowerCase(),needFiles:$this.arg.allowTypes})){
+                        alert('请选择 '+$this.arg.allowTypes+' 格式的文件上传');
+                        return false;
+                    }else{
+                        $this.load($(this));
+                        Bing.templateData = '';
+                        $this.successFun();
+                    }
+                });
+            },
+            load : function(arg){
+                arg.append(this.loading);
+            },
+            removeLoading : function(){
+                this.loading.remove();
+            },
+            successFun : function(){
+                console.log('just for test');
+            },
+            appendToDisplay : function(){
+                this.arg.parent.append(this.nameSpace);
+            },
+            removeToHidden : function(){
+                this.nameSpace.remove();
+            }
+        };
+        Bing.PdfList.prototype = {
+            init : function(){
+                this.ajax();
+            },
+            ajax : function(){
+                var $this  = this;
+                $.ajax({
+                    type:'POST',
+                    url:$this.arg.listUrl,
+                    success:function(data){
+                        var data = data.split('&&'),dataLength = data.length;
+                        $this.tableList.append('<tr><th width="50%" class="title">标题</th><th width="40%" class="author">上传者</th><th width="10%"class="time">时间</th></tr>');
+                        for(var i=0;i<dataLength;i++){
+                            $this.addList($.parseJSON(data[i]));
+                        }
+                        $this.nameSpace.append($this.tableList);
+                        $this.appendToDisplay();
+                    }
+                });
+            },
+            addList:function(data){
+                if(data){
+                    if(this.tableList.find('.file-list').length>0){
+                        this.tableList.find('.file-list:first').before('<tr class="file-list"><td width="50%" class="title"><a href="#" title="'+data.title+'">'+data.title+'</a></td><td width="40%" class="author">'+data.author+'</td><td width="10%"class="time">'+data.time+'</td></tr>');
+                    }else{
+                        this.tableList.append('<tr class="file-list"><td width="50%" class="title"><a href="#" title="'+data.title+'">'+data.title+'</a></td><td width="40%" class="author">'+data.author+'</td><td width="10%"class="time">'+data.time+'</td></tr>');
+                    } 
+                }
+            },
+            appendToDisplay : function(){
+                this.arg.parent.append(this.nameSpace);
+            },
+            removeToHidden : function(){
+                this.nameSpace.remove();
+            }
+        }
+    })();
+    
     Bing.PdfReader = function(arg){
-        this.arg = $.extend({uid:'',url:'',parent:$('body'),className:'',thumbnails:true,successFn:function(){},errorFn:function(){}},arg);
+        this.arg = $.extend({uid:'',url:'',parent:$('body'),className:''},arg);
         if(!this.arg.url){
             throw new Error('必须指定文件下载路径');
             return false;
@@ -24,7 +148,7 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
         this.proportion = this.mainHeight/this.thumbnailsHeight;
         this.mainBody = $('<div class="mainBody"></div>');
         this.returnToTop = $('<div class="returnToTop" style="display:none"></div>');
-        this.thumbnails = (this.arg.thumbnails) ? $('<div class="thumbnails"></div>') : '';//判断是否需要显示缩略图
+        this.thumbnails = $('<div class="thumbnails"></div>');//判断是否需要显示缩略图
         this.init();
     };
     Bing.PdfReader.displayImg = function(arg){

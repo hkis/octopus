@@ -20,4 +20,6 @@ type : 判断是缩略图请求还是主图请求  "simple"为缩略图请求  "rich"为主图请求
 Uid  ---- 用户名
 FileData  ---- PDF数据文件
 
+
+
  

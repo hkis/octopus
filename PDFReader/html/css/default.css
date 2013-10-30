@@ -1,6 +1,6 @@
 body{margin: 0px;padding: 0px; overflow:hidden;}
 
-.pdf-main-body{position:relative;font-family: Lucida Grande; background-color: #f2e4c7; margin:0 auto; box-shadow:0 0 20px #000; height:750px; width:1050px;display:block; border-radius: 5px;}
+.pdf-main-body{position:relative;font-family: Lucida Grande; background-color: #f2e4c7; margin:0px; box-shadow:0 0 20px #000; height:750px; width:1050px;display:block; border-radius: 5px;}
 /*缩略图*/
 .pdf-main-body .thumbnails{  background-color: #784646; width: 200px; height:96%; position:relative; float: left; box-shadow:0 0 10px #999 inset;overflow: auto;}
 .pdf-main-body .thumbnails ul{font-size: 12px; text-shadow: 0 0 1px #999; color:#000; margin:0px auto; width:100%; padding:0px; list-style: none; position:relative;  display: block; box-shadow: 0 0 10px #999;}
@@ -27,4 +27,14 @@ body{margin: 0px;padding: 0px; overflow:hidden;}
 .pdf-main-body .titleBar .pageUpDown a:hover{ color:#f2e4c7; background-color: #784646; box-shadow: 0 0 2px #000 inset; border: 1px solid #000;}
 
 /*pdf上传*/
-#main-upload{width:600px; height:200px; box-shadow: 0 0 5px #784646; padding:50px; border-radius:10px; margin: 0px auto; top:100px; position:relative; font-family: 楷体; font-size: 30px; color:#2c2c2c}
+.form-pdf{width:100%; box-shadow: 0 0 5px #784646; background-color: #f2e4c7; padding: 0px 10px; border-radius:10px; position:relative; font-family: 楷体; color:#2c2c2c;}
+.form-pdf #uploading{ width:20px; height:20px;}
+
+/*列表*/
+.pdfList{ color:#f2e4c7;font-family: 楷体;}
+.pdfList table{ border-left:2px solid #000; border-top: 2px solid #000;}
+.pdfList tr{ height:40px; border-radius:5px;}
+.pdfList td{background-color: #784646; border-right:2px solid #000; box-shadow: 0 0 2px #999 inset; text-shadow: 0 0 5px #000; padding:0 20px; border-bottom: 2px solid #000;overflow:hidden;  white-space:nowrap;}
+.pdfList th{ border-right:2px solid #000; background-color: #333; text-shadow: 0 0 5px #FFF;box-shadow: 0 0 2px #999 inset; height: 50px; font-size:20px; color:#fff; padding:0 20px; white-space:nowrap; border-bottom: 2px solid #000;border-radius:5px;}
+.pdfList a{ text-decoration: none; color:#f2e4c7; text-shadow: 0 0 5px #000;}
+.pdfList a:hover{ text-decoration: underline; color:#FFF;}

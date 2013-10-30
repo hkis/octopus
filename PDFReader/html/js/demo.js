@@ -7,7 +7,7 @@ var Bing = Bing || {};
             arg = $.extend({file:'',needFiles:''},arg);
             if(arg.needFiles){
                 var file = arg.file,fileType = file.substring(file.lastIndexOf(".")+1).toLowerCase();
-                return arg.needFiles.indexOf(fileType) > -1 ? true : false;
+                return fileType && arg.needFiles.indexOf(fileType) > -1 ? true : false;
             }
             return true;
         },
