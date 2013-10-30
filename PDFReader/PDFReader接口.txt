@@ -1,4 +1,5 @@
 读取图片数据传递参数：
+fileId:请求的文件名
 uid:用户id，
 index:需要获取的图片index，例如"1,2,3",要获取前三张图片
 firstOr：是否是第一次请求，firstOr="true"：第一次请求 firstOr="false"：不是第一次请求
@@ -19,7 +20,9 @@ type : 判断是缩略图请求还是主图请求  "simple"为缩略图请求  "rich"为主图请求
 
 Uid  ---- 用户名
 FileData  ---- PDF数据文件
+返回json数据格式{"title":"","author":"","time":""}
+因为文件提交不能使用ajax，使用iframe模拟的ajax效果，输出格式为'<script type="text/javascript">window.parent.Bing.templateData=\''.$returnVal.'\'</script>'
 
-
+列表输出格式{"title":"标题标题标题标题标题","author":"上传者","time":"2013-10-25"}&&{"title":"标题标题标题标题标题","author":"上传者","time":"2013-10-25"}&& ... ...
 
  
