@@ -17,10 +17,11 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
         this.tools = Bing.tools;
         this.uploadPdf = new Bing.PdfUpload(this.arg);
         this.listPdf = new Bing.PdfList(this.arg);
+        this.pdfReader = '';
 
-        var thisPDF = this,$$this = this.uploadPdf;
+        var thisPDF = this;
         this.uploadPdf.successFun = function(){
-            var $this = $$this;
+            var $this = thisPDF.uploadPdf;
             var timer = setInterval(checkLoaded,100);
             function checkLoaded(){
                 if(Bing.templateData){
@@ -32,6 +33,25 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
                 }
             }
         }
+        var $this = thisPDF.listPdf;
+        $this.nameSpace.click(function(e){
+            var tar = e.target;
+            if(tar.nodeName.toUpperCase() == "A"){
+                thisPDF.uploadPdf.nameSpace.css({'display':'none'});
+                $this.nameSpace.css({'display':'none'});
+                $(document).forbidSelect();
+                thisPDF.pdfReader = new Bing.PdfReader({fileId:tar.nodeName,uid:$this.arg.uid,url:thisPDF.arg.loadImgUrl,parent:$this.arg.parent,className:thisPDF.arg.className});
+                thisPDF.pdfReader.titleBar.append('<span class="returnToList"><a href="#">返回列表页</a></span>');
+                thisPDF.pdfReader.titleBar.find('.returnToList').click(function(){
+                    thisPDF.uploadPdf.nameSpace.css({'display':''});
+                    $this.nameSpace.css({'display':''});
+                    thisPDF.pdfReader.removeToHidden();
+                    thisPDF.pdfReader = null;
+                    return false;
+                });
+                return false;
+            }
+        });
     };
     (function(){
         Bing.PdfUpload = function(arg){
@@ -132,7 +152,7 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
     })();
     
     Bing.PdfReader = function(arg){
-        this.arg = $.extend({uid:'',url:'',parent:$('body'),className:''},arg);
+        this.arg = $.extend({uid:'',url:'',fileId:'',parent:$('body'),className:''},arg);
         if(!this.arg.url){
             throw new Error('必须指定文件下载路径');
             return false;
@@ -170,7 +190,7 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
             constructor : Bing.PdfReader,
             init : function(){
                 this.nameSpace.append(this.titleBar,this.thumbnails,this.mainBody);
-                this.arg.parent.append(this.nameSpace);
+                this.appendToDisplay();
                 this.titleBarHeight = this.titleBar.height();
                 this.resizeScreen();
                 this.resize();
@@ -222,6 +242,12 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
                 resizeBody.resize(function(){
                     $this.resizeScreen();
                 });
+            },
+            appendToDisplay : function(){
+                this.arg.parent.append(this.nameSpace);
+            },
+            removeToHidden : function(){
+                this.nameSpace.remove();
             }
         };
         Bing.PdfReader.displayImg.prototype = {
@@ -301,7 +327,7 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
                 var $this = this;
                 $.ajax({
                     type:'POST',
-                    data:'uid='+$this.arg.uid+'&index='+indexS+'&firstOr='+firstOr+'&type='+$this.arg.type,
+                    data:'fileId='+$this.arg.fileId+'&&uid='+$this.arg.uid+'&index='+indexS+'&firstOr='+firstOr+'&type='+$this.arg.type,
                     url:this.arg.url,
                     beforeSend:function(){
                         if($this.arg.type == 'rich'){
