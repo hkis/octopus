@@ -1,4 +1,4 @@
-读取图片数据传递参数：
+1.读取图片数据传递参数：
 fileId:请求的文件名
 uid:用户id，
 index:需要获取的图片index，例如"1,2,3",要获取前三张图片
@@ -16,13 +16,21 @@ type : 判断是缩略图请求还是主图请求  "simple"为缩略图请求  "rich"为主图请求
       缩略图大小------- 宽：150px  高：212px
 
 
-提交PDF文件接口：
+2.提交PDF文件接口：
 
 Uid  ---- 用户名
 FileData  ---- PDF数据文件
 返回json数据格式{"title":"","author":"","time":""}
 因为文件提交不能使用ajax，使用iframe模拟的ajax效果，输出格式为'<script type="text/javascript">window.parent.Bing.templateData=\''.$returnVal.'\'</script>'
 
-列表输出格式{"title":"标题标题标题标题标题","author":"上传者","time":"2013-10-25"}&&{"title":"标题标题标题标题标题","author":"上传者","time":"2013-10-25"}&& ... ...
+3.列表输出格式{"title":"标题标题标题标题标题","author":"上传者","time":"2013-10-25"}&&{"title":"标题标题标题标题标题","author":"上传者","time":"2013-10-25"}&& ... ...
 
+
+4.修改参数，只需修改 pdfReader.js中的：
+
+	uploadUrl（上传动态文件路径），
+	listUrl（类表页读取路径），
+	loadImgUrl（主页面图片读取路径）
+
+三个参数即可
  
