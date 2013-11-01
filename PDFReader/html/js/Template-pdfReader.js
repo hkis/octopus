@@ -9,7 +9,7 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
     ****************************/
     
     Bing.Pdf = function(arg){
-        this.arg = $.extend({uid:'',allowTypes:'',uploadUrl:'',listUrl:'',loadImgUrl:'',className:'',parent:$('body')},arg);
+        this.arg = $.extend({uid:'',allowTypes:'',uploadUrl:'',listUrl:'',loadImgUrl:'',pageSize:8,className:'',parent:$('body')},arg);
         if(!this.arg.loadImgUrl || !this.arg.uploadUrl || !this.arg.listUrl){
             throw new Error('必须指定下载路径');
             return false;
@@ -28,7 +28,7 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
                     clearInterval(timer);
                     $this.removeLoading();
                     thisPDF.listPdf.addList($.parseJSON(Bing.templateData));
-                    //alert('上传成功');
+                    alert('上传成功');
                     delete Bing.templateData;
                 }
             }
@@ -40,7 +40,7 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
                 thisPDF.uploadPdf.nameSpace.css({'display':'none'});
                 $this.nameSpace.css({'display':'none'});
                 $(document).forbidSelect();
-                thisPDF.pdfReader = new Bing.PdfReader({fileId:tar.nodeName,uid:$this.arg.uid,url:thisPDF.arg.loadImgUrl,parent:$this.arg.parent,className:thisPDF.arg.className});
+                thisPDF.pdfReader = new Bing.PdfReader({fileId:tar.nodeName,uid:thisPDF.arg.uid,url:thisPDF.arg.loadImgUrl,parent:thisPDF.arg.parent,className:thisPDF.arg.className});
                 thisPDF.pdfReader.titleBar.append('<span class="returnToList"><a href="#">返回列表页</a></span>');
                 thisPDF.pdfReader.titleBar.find('.returnToList').click(function(){
                     thisPDF.uploadPdf.nameSpace.css({'display':''});
@@ -66,9 +66,10 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
             this.init();
         };
         Bing.PdfList = function(arg){
-            this.arg = $.extend({uid:'',listUrl:'',parent:$('body')},arg);
+            this.arg = $.extend({uid:'',listUrl:'',pageSize:8,parent:$('body')},arg);
             this.tools = Bing.tools;
             this.nameSpace = $('<div class="pdfList"></div>');
+            this.pageIndex = 1;
             this.tableList = $('<table cellspacing="0" cellpadding="0" width="100%"><tbody></tbody></table>');
             this.init();
         };
@@ -115,18 +116,22 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
         };
         Bing.PdfList.prototype = {
             init : function(){
-                this.ajax();
+                this.ajax(true);
             },
-            ajax : function(){
+            ajax : function(firstOr){
                 var $this  = this;
                 $.ajax({
                     type:'POST',
                     url:$this.arg.listUrl,
+                    data:'uid='+$this.arg.uid+'&pageSize='+$this.arg.pageSize+'&pageIndex='+$this.pageIndex,
                     success:function(data){
                         var data = data.split('&&'),dataLength = data.length;
                         $this.tableList.append('<tr><th width="50%" class="title">标题</th><th width="40%" class="author">上传者</th><th width="10%"class="time">时间</th></tr>');
-                        for(var i=0;i<dataLength;i++){
+                        for(var i=0;i<dataLength-1;i++){
                             $this.addList($.parseJSON(data[i]));
+                        }
+                        if(firstOr){
+                            $this.addPageNumer(data[dataLength-1]);
                         }
                         $this.nameSpace.append($this.tableList);
                         $this.appendToDisplay();
@@ -139,8 +144,12 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
                         this.tableList.find('.file-list:first').before('<tr class="file-list"><td width="50%" class="title"><a href="#" title="'+data.title+'">'+data.title+'</a></td><td width="40%" class="author">'+data.author+'</td><td width="10%"class="time">'+data.time+'</td></tr>');
                     }else{
                         this.tableList.append('<tr class="file-list"><td width="50%" class="title"><a href="#" title="'+data.title+'">'+data.title+'</a></td><td width="40%" class="author">'+data.author+'</td><td width="10%"class="time">'+data.time+'</td></tr>');
-                    } 
+                    }
                 }
+            },
+            addPageNumer : function(numberCount){//分页效果，待添加
+                numberCount = parseInt(numberCount);
+                var pageCount = Math.ceil(numberCount/this.arg.pageSize);
             },
             appendToDisplay : function(){
                 this.arg.parent.append(this.nameSpace);
