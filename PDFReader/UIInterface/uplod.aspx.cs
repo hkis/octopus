@@ -21,12 +21,12 @@ public partial class UIInterface_uplod : System.Web.UI.Page
         var fileName = string.Empty;
 
 
-        if (Request.QueryString["uid"] == null && Request.QueryString["uid"] == "")
+        if (Request.Form["uid"] == null && Request.Form["uid"] == "")
         {
             ResultDataMangr reData = new ResultDataMangr() { result = false, errCode = "用户名为空！" };
             OutPut(reData);
         }
-        uID = Request.QueryString["uid"];
+        uID = Request.Form["uid"];
         var fileData = Request.Files["FileData"];
         ApplicationLog.WriteInfo("uid="+uID);
         if (fileData != null)

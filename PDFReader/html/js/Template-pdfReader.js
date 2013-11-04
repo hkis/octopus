@@ -40,7 +40,7 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
                 thisPDF.uploadPdf.nameSpace.css({'display':'none'});
                 $this.nameSpace.css({'display':'none'});
                 $(document).forbidSelect();
-                thisPDF.pdfReader = new Bing.PdfReader({fileId:tar.nodeName,uid:thisPDF.arg.uid,url:thisPDF.arg.loadImgUrl,parent:thisPDF.arg.parent,className:thisPDF.arg.className});
+                thisPDF.pdfReader = new Bing.PdfReader({fileId:$(tar).attr('title'),uid:thisPDF.arg.uid,url:thisPDF.arg.loadImgUrl,parent:thisPDF.arg.parent,className:thisPDF.arg.className});
                 thisPDF.pdfReader.titleBar.append('<span class="returnToList"><a href="#">返回列表页</a></span>');
                 thisPDF.pdfReader.titleBar.find('.returnToList').click(function(){
                     thisPDF.uploadPdf.nameSpace.css({'display':''});
@@ -181,7 +181,7 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
         this.init();
     };
     Bing.PdfReader.displayImg = function(arg){
-        this.arg = $.extend({uid:'',url:'',parent:$('body'),success:function(){}},arg);
+        this.arg = $.extend({fileId:'',uid:'',url:'',parent:$('body'),success:function(){}},arg);
         this.tools = Bing.tools;//主要工具函数
         this.nameSpace = $('<ul ondragstart="return false;"></ul>');//父标签
         this.loadImgs = [];
@@ -203,8 +203,8 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
                 this.titleBarHeight = this.titleBar.height();
                 this.resizeScreen();
                 this.resize();
-                var mainBody = new Bing.PdfReader.displayImg({uid:this.arg.uid,url:this.arg.url,pageHeight:this.mainHeight,parent:this.mainBody,success:editTitleBar,main:this,type:'rich'});
-                var thumbnails = new Bing.PdfReader.displayImg({uid:this.arg.uid,url:this.arg.url,pageHeight:this.thumbnailsHeight,parent:this.thumbnails,success:'',type:'simple'});
+                var mainBody = new Bing.PdfReader.displayImg({fileId:this.arg.fileId,uid:this.arg.uid,url:this.arg.url,pageHeight:this.mainHeight,parent:this.mainBody,success:editTitleBar,main:this,type:'rich'});
+                var thumbnails = new Bing.PdfReader.displayImg({fileId:this.arg.fileId,uid:this.arg.uid,url:this.arg.url,pageHeight:this.thumbnailsHeight,parent:this.thumbnails,success:'',type:'simple'});
                 var $this = this;
                 thumbnails.nameSpace.click(function(e){
                     var tar = e.target;
@@ -339,6 +339,7 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
                     data:'fileId='+$this.arg.fileId+'&&uid='+$this.arg.uid+'&index='+indexS+'&firstOr='+firstOr+'&type='+$this.arg.type,
                     url:this.arg.url,
                     beforeSend:function(){
+                        //console.log('fileId='+$this.arg.fileId+'&&uid='+$this.arg.uid+'&index='+indexS+'&firstOr='+firstOr+'&type='+$this.arg.type);
                         if($this.arg.type == 'rich'){
                             $this.arg.main.loading.fadeIn('fast');
                         }
