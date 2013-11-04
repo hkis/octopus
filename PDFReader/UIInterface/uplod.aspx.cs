@@ -47,7 +47,7 @@ public partial class UIInterface_uplod : System.Web.UI.Page
             }
             //DirectoryInfo dirInfo = new DirectoryInfo(pdfPath);
             //dirInfo.CreateSubdirectory(uID);
-            fileName = fileData.FileName.Substring(0,fileData.FileName.LastIndexOf("."))+ DateTime.Now.Ticks.ToString();
+            fileName = fileData.FileName.Substring(0,fileData.FileName.LastIndexOf("."))+"-"+DateTime.Now.Ticks.ToString();
             fileData.SaveAs(pdfPath + "\\" + fileName + extName);//保存图片
 
             //往数据添加文件数据

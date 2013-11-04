@@ -143,7 +143,7 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
                     if(this.tableList.find('.file-list').length>0){
                         this.tableList.find('.file-list:first').before('<tr class="file-list"><td width="50%" class="title"><a href="#" title="'+data.title+'">'+data.title+'</a></td><td width="40%" class="author">'+data.author+'</td><td width="10%"class="time">'+data.time+'</td></tr>');
                     }else{
-                        this.tableList.append('<tr class="file-list"><td width="50%" class="title"><a href="#" title="'+data.title+'">'+data.title+'</a></td><td width="40%" class="author">'+data.author+'</td><td width="10%"class="time">'+data.time+'</td></tr>');
+                        this.tableList.append('<tr class="file-list"><td width="50%" class="title"><a href="#" title="'+data.title+'">'+data.title.substring(0,data.title.lastIndexOf('-'))+'</a></td><td width="40%" class="author">'+data.author+'</td><td width="10%"class="time">'+data.time+'</td></tr>');
                     }
                 }
             },
