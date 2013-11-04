@@ -80,7 +80,7 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
                    $('body').append('<iframe name="ifr" id="iframe_hidden" style="display:none"></iframe>');
                 }
                 iframe = null;
-                this.nameSpace.append('<form enctype="multipart/form-data" action="'+this.arg.uploadUrl+'" id="pdfForm" target="ifr" method="post" ><label>添加新的PDF文件</label><input type="hidden" name="Uid" value="'+this.arg.uid+'"/><input type="file" name="FileData" /><input type="submit" value="提交" /></form>');
+                this.nameSpace.append('<form enctype="multipart/form-data" action="'+this.arg.uploadUrl+'" id="pdfForm" target="ifr" method="post" ><label>添加新的PDF文件</label><input type="hidden" name="uid" value="'+this.arg.uid+'"/><input type="file" name="FileData" /><input type="submit" value="提交" /></form>');
                 this.appendToDisplay();
                 this.submit();
             },
