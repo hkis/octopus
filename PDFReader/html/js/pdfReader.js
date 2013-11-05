@@ -7,7 +7,7 @@
             listUrl:'../Ashx/filelist.ashx',//类表页读取路径
             loadImgUrl:'../Ashx/FilePreviw.ashx',//主页面图片读取路径
             pageSize : 10,//每一页显示的条数
-            parent:$('body'),
+            parent:$(document.getElementsByTagName('body')[0]),
             className:'pdf-main-body'
         });
     }});

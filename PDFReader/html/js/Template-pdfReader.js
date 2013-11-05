@@ -77,7 +77,7 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
             init:function(){
                 var iframe = $('#iframe_hidden');//这里寻找页面中的iframe元素，为文件的“异步”提交做准备
                 if(iframe.length == 0){
-                   $('body').append('<iframe name="ifr" id="iframe_hidden" style="display:none"></iframe>');
+                   $(document.getElementsByTagName('body')[0]).append('<iframe name="ifr" id="iframe_hidden" style="display:none"></iframe>');
                 }
                 iframe = null;
                 this.nameSpace.append('<form enctype="multipart/form-data" action="'+this.arg.uploadUrl+'" id="pdfForm" target="ifr" method="post" ><label>添加新的PDF文件</label><input type="hidden" name="uid" value="'+this.arg.uid+'"/><input type="file" name="FileData" /><input type="submit" value="提交" /></form>');
@@ -140,11 +140,7 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
             },
             addList:function(data){
                 if(data){
-                    if(this.tableList.find('.file-list').length>0){
-                        this.tableList.find('.file-list:first').before('<tr class="file-list"><td width="50%" class="title"><a href="#" title="'+data.title+'">'+data.title+'</a></td><td width="40%" class="author">'+data.author+'</td><td width="10%"class="time">'+data.time+'</td></tr>');
-                    }else{
-                        this.tableList.append('<tr class="file-list"><td width="50%" class="title"><a href="#" title="'+data.title+'">'+data.title.substring(0,data.title.lastIndexOf('-'))+'</a></td><td width="40%" class="author">'+data.author+'</td><td width="10%"class="time">'+data.time+'</td></tr>');
-                    }
+                    this.tableList.find('tr:first').after('<tr class="file-list"><td width="50%" class="title"><a href="#" title="'+data.title+'">'+data.title.substring(0,data.title.lastIndexOf('-'))+'</a></td><td width="40%" class="author">'+data.author+'</td><td width="10%"class="time">'+data.time+'</td></tr>');
                 }
             },
             addPageNumer : function(numberCount){//分页效果，待添加
