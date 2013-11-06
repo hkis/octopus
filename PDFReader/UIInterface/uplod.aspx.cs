@@ -21,12 +21,12 @@ public partial class UIInterface_uplod : System.Web.UI.Page
         var fileName = string.Empty;
 
 
-        if (Request.Form["uid"] == null && Request.Form["uid"] == "")
+        if (Request["uid"] == null && Request["uid"] == "")
         {
             ResultDataMangr reData = new ResultDataMangr() { result = false, errCode = "用户名为空！" };
             OutPut(reData);
         }
-        uID = Request.Form["uid"];
+        uID = Request["uid"].ToString();
         var fileData = Request.Files["FileData"];
         ApplicationLog.WriteInfo("uid="+uID);
         if (fileData != null)
@@ -47,7 +47,7 @@ public partial class UIInterface_uplod : System.Web.UI.Page
             }
             //DirectoryInfo dirInfo = new DirectoryInfo(pdfPath);
             //dirInfo.CreateSubdirectory(uID);
-            fileName = fileData.FileName.Substring(0,fileData.FileName.LastIndexOf("."))+"-"+DateTime.Now.Ticks.ToString();
+            fileName = fileData.FileName.Substring(0,fileData.FileName.LastIndexOf("."))+"-"+ DateTime.Now.Ticks.ToString();
             fileData.SaveAs(pdfPath + "\\" + fileName + extName);//保存图片
 
             //往数据添加文件数据
@@ -55,7 +55,7 @@ public partial class UIInterface_uplod : System.Web.UI.Page
             UserPdfFileInfo pdf = new UserPdfFileInfo();
             BllPdfFileInfoMangr bpfm = new BllPdfFileInfoMangr();
 
-            pdf.pdfFileID = new Guid().ToString();
+            pdf.pdfFileID = Guid.NewGuid().ToString();
             pdf.pdfFileAuthor = uID;
             pdf.pdfUserName = uID;
             pdf.pdfFileName = fileName;

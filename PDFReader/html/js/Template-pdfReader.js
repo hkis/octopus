@@ -212,7 +212,7 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
                 });
                 function editTitleBar(d){
                     var titleBar = $this.titleBar;
-                    titleBar.find('#title').text(d.title);
+                    titleBar.find('#title').text(d.title.substring(0,d.title.lastIndexOf('-')));
                     titleBar.find('#author').text(d.author);
                     titleBar.find('#sumPages').text('/'+d.allNumber);
                 }
@@ -347,9 +347,9 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
                                 $this.addPages(d);
                             }else{//如果不是返回格式为：{allNumber:,width:,height:,title:,author:,"pageContent":}
                                 var par = $this.nameSpace;
-                                $this.author = d.author;
+                                /*$this.author = d.author;
                                 $this.title = d.title.substring(0,d.title.lastIndexOf('-'));
-                                console.log($this.title);
+                                console.log($this.title);*/
                                 $this.allNumber = d.allNumber;
                                 var liSum = '',numSum = d.allNumber;
                                 while(numSum--){

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -33,13 +34,15 @@ public class ImageTools
     /// <param name="definition">缩略图大小</param>
     /// <returns></returns>
     public static bool ConvertPDF2Thumbnails(string pdfInputPath, string thumbnailsPath,
-            string imageName, int startPageNum, int endPageNum, ImageFormat imageFormat, Definition definition)
+            string imageName, int startPageNum, int endPageNum, ImageFormat imageFormat, Definition definition,out int pageCount)
     {
         PDFFile pdfFile = PDFFile.Open(pdfInputPath);
+        pageCount = pdfFile.PageCount;
 
-        if (!Directory.Exists(thumbnailsPath))
+        var directory = thumbnailsPath.Substring(0,thumbnailsPath.LastIndexOf("\\")-1);
+        if (!Directory.Exists(directory))
         {
-            Directory.CreateDirectory(thumbnailsPath);
+            Directory.CreateDirectory(directory);
         }
 
         // validate pageNum
@@ -64,7 +67,6 @@ public class ImageTools
             startPageNum = endPageNum;
             endPageNum = startPageNum;
         }
-
         // start to convert each page
         for (int i = startPageNum; i <= endPageNum; i++)
         {
@@ -95,11 +97,12 @@ public class ImageTools
     /// <param name="definition">图片大小</param>
     /// <param name="list">输出数据集合</param>
     /// <returns>返回值</returns>
-    public static bool ConvertPDF2Image(string pdfInputPath,int startPageNum, int endPageNum, ImageFormat imageFormat, Definition definition, out List<byte[]> list)
+    public static bool ConvertPDF2Image(string pdfInputPath,int startPageNum, int endPageNum, ImageFormat imageFormat, Definition definition, out byte[] list,out int pageCount)
     {
         list = null;
+        pageCount = 0;
         PDFFile pdfFile = PDFFile.Open(pdfInputPath);
-
+        pageCount = pdfFile.PageCount;
         //if (!Directory.Exists(thumbnailsPath))
         //{
         //    Directory.CreateDirectory(thumbnailsPath);
@@ -133,12 +136,13 @@ public class ImageTools
         for (int i = startPageNum; i <= endPageNum; i++)
         {
             Bitmap pageImage = pdfFile.GetPageImage(i - 1, 56 * (int)definition);
-            byte[] b = BitMapToByte(pageImage);
-            list.Add(b);
+            
+            list = BitMapToByte(pageImage);
             pageImage.Dispose();
         }
 
         pdfFile.Dispose();
+        
         return true;
     } 
     #endregion
@@ -151,18 +155,49 @@ public class ImageTools
     /// <returns></returns>
     public static byte[] BitMapToByte(Bitmap bitmap)
     {
+        //List<byte[]> list = new List<byte[]>();
         MemoryStream ms = null;
         byte[] imgData = null;
 
+        ///重新绘图并指定大小
+        int destWidth = 794;
+        int destHight = 1122;
+
+        Bitmap newBitmap = new Bitmap(destWidth, destHight);
+        using(Graphics g=Graphics.FromImage((Image)newBitmap))
+        {
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.CompositingQuality = CompositingQuality.HighQuality;
+            g.DrawImage((Image)bitmap, 0, 0, destWidth, destHight);
+            g.Dispose();
+        }
+
+        ///
+
         using (ms = new MemoryStream())
         {
-            bitmap.Save(ms, ImageFormat.Jpeg);
+            newBitmap.Save(ms, ImageFormat.Jpeg);
             ms.Position = 0;
             imgData = new byte[ms.Length];
             ms.Read(imgData, 0, Convert.ToInt32(ms.Length));
             ms.Flush();
         }
+        //list.Add(imgData);
         return imgData;
+    } 
+    #endregion
+
+    #region 04Int获取转化后图片总数+static int GetPDF2ImageCount(string pdfInputPath)
+    /// <summary>
+    /// 获取转化后图片总数
+    /// </summary>
+    /// <param name="pdfInputPath">PDF文件路径</param>
+    /// <returns></returns>
+    public static int GetPDF2ImageCount(string pdfInputPath)
+    {
+        PDFFile pdfFile = PDFFile.Open(pdfInputPath);
+        return pdfFile.PageCount;
     } 
     #endregion
 

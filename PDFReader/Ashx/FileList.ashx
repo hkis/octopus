@@ -19,24 +19,24 @@ public class FileList : IHttpHandler {
         var msg=string.Empty;
         var pageSize = 10;
         var pageIndex = 1;
-        var pageCount = 0;
+        long pageCount = 0;
 
-        if (context.Request.QueryString["uid"] != null && context.Request.QueryString["uid"] != "")
+        if (context.Request["uid"] != null && context.Request["uid"] != "")
         {
-            uid = context.Request.QueryString["uid"].ToString();
+            uid = context.Request["uid"].ToString();
             if (string.IsNullOrEmpty(uid))
             {
                 ResultDataMangr reData = new ResultDataMangr() { result = false, errCode = "用户名不能为空！" };
                 OutPut(reData, context);
             }
         }
-        if (context.Request.QueryString["pageIndex"] != null)
+        if (context.Request["pageIndex"] != null)
         {
-            pageIndex = Convert.ToInt32(context.Request.QueryString["pageIndex"]);
+            pageIndex = Convert.ToInt32(context.Request["pageIndex"]);
         }
-        if (context.Request.QueryString["pageSize"]!=null)
+        if (context.Request["pageSize"]!=null)
         {
-            pageSize = Convert.ToInt32(context.Request.QueryString["pageSize"]);
+            pageSize = Convert.ToInt32(context.Request["pageSize"]);
         }
 
         
@@ -47,7 +47,7 @@ public class FileList : IHttpHandler {
         
         if(bpfm.GetPdfFileByUserID(uid,pageSize,pageIndex,out List,out pageCount,out msg))
         {
-            if (List == null && List.Count ==0)
+            if (List == null || List.Count ==0)
             {
                 context.Response.Write("");
                 context.Response.End();
