@@ -333,7 +333,7 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
                 $.ajax({
                     type:'POST',
                     data:'fileId='+$this.arg.fileId+'&&uid='+$this.arg.uid+'&index='+indexS+'&firstOr='+firstOr+'&type='+$this.arg.type,
-                    url:this.arg.url,
+                    url:$this.arg.url,
                     beforeSend:function(){
                         //console.log('fileId='+$this.arg.fileId+'&&uid='+$this.arg.uid+'&index='+indexS+'&firstOr='+firstOr+'&type='+$this.arg.type);
                         if($this.arg.type == 'rich'){
@@ -348,7 +348,8 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
                             }else{//如果不是返回格式为：{allNumber:,width:,height:,title:,author:,"pageContent":}
                                 var par = $this.nameSpace;
                                 $this.author = d.author;
-                                $this.title = d.title;
+                                $this.title = d.title.substring(0,d.title.lastIndexOf('-'));
+                                console.log($this.title);
                                 $this.allNumber = d.allNumber;
                                 var liSum = '',numSum = d.allNumber;
                                 while(numSum--){
