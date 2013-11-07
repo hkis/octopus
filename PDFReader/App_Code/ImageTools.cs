@@ -39,11 +39,11 @@ public class ImageTools
         PDFFile pdfFile = PDFFile.Open(pdfInputPath);
         pageCount = pdfFile.PageCount;
 
-        var directory = thumbnailsPath.Substring(0,thumbnailsPath.LastIndexOf("\\")-1);
-        if (!Directory.Exists(directory))
-        {
-            Directory.CreateDirectory(directory);
-        }
+        //var directory = thumbnailsPath.Substring(0,thumbnailsPath.LastIndexOf("\\")-1);
+        //if (!Directory.Exists(directory))
+        //{
+        //    Directory.CreateDirectory(directory);
+        //}
 
         // validate pageNum
         if (startPageNum <= 0)

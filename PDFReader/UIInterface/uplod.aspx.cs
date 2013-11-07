@@ -39,7 +39,7 @@ public partial class UIInterface_uplod : System.Web.UI.Page
                 ResultDataMangr reData = new ResultDataMangr() { result = false, errCode = "文件类型错误，不支持该类型文件上传！" };
                 OutPut(reData);
             }
-            pdfPath = pdfPath + uID;
+            pdfPath =Server.MapPath("../pdfFile/source/") + uID;
             ApplicationLog.WriteInfo("pdfPath:"+pdfPath);
             if (!Directory.Exists(pdfPath))
             {
@@ -48,7 +48,8 @@ public partial class UIInterface_uplod : System.Web.UI.Page
             //DirectoryInfo dirInfo = new DirectoryInfo(pdfPath);
             //dirInfo.CreateSubdirectory(uID);
             fileName = fileData.FileName.Substring(0,fileData.FileName.LastIndexOf("."))+"-"+ DateTime.Now.Ticks.ToString();
-            fileData.SaveAs(pdfPath + "\\" + fileName + extName);//保存图片
+            var filePath=pdfPath + "\\" + fileName + extName;
+            fileData.SaveAs(filePath);//保存图片
 
             //往数据添加文件数据
             var msg=string.Empty;
@@ -60,6 +61,7 @@ public partial class UIInterface_uplod : System.Web.UI.Page
             pdf.pdfUserName = uID;
             pdf.pdfFileName = fileName;
             pdf.createTime = DateTime.Now.ToString("yyyy-MM-dd");
+            pdf.pdfPath = filePath;
 
             if (!bpfm.AddPdfFileInfo(pdf, out msg))
             {

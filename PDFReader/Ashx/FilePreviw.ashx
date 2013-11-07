@@ -51,7 +51,7 @@ public class FilePreviw : IHttpHandler {
         {
             pageIndexArr = new string[] { index};
         }
-        var pdfName = pdfSourcePath + uid + "\\" + fullName+".pdf";
+        var pdfName =context.Server.MapPath("../PdfFile/source/") + uid + "\\" + fullName+".pdf";
         if (type == "simple")
         {
             if (pageIndexArr!=null && pageIndexArr.Length>0)
@@ -66,11 +66,17 @@ public class FilePreviw : IHttpHandler {
                     ResultDataMangr reData=new ResultDataMangr(){result=false,errCode="该PDF文件不存在！"};
                     OutPut(reData,context);
                 }
+
+                thumbnailsPath = context.Server.MapPath("../PdfFile/Thumbnails/" + uid+"/");
+                if (!Directory.Exists(thumbnailsPath))
+                {
+                    Directory.CreateDirectory(thumbnailsPath);
+                }
                    
                 for (int i = 0; i < pageIndexArr.Length; i++)
                 {
                     thumbnailsName = thumbnailsPath + fullName + "_" + pageIndexArr[i].ToString() + ".jpeg";
-                    thumbnailsUrlTemp = thumbnailsUrl  + fullName + "_" + pageIndexArr[i].ToString() + ".jpeg";//文件虚拟路径
+                    thumbnailsUrlTemp = thumbnailsUrl+uid+"/"  + fullName + "_" + pageIndexArr[i].ToString() + ".jpeg";//文件虚拟路径
                     if (!File.Exists(thumbnailsName))//不存在缩略图才重新创建
                     {
                         if (ImageTools.ConvertPDF2Thumbnails(pdfName, thumbnailsName, fullName, Convert.ToInt32(pageIndexArr[i]), Convert.ToInt32(pageIndexArr[i]),
