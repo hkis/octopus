@@ -15,7 +15,7 @@ public class FileList : IHttpHandler {
     public void ProcessRequest (HttpContext context) {
         context.Response.ContentType = "text/plain";
 
-        var uid = string.Empty;
+        var uid = "BingGeGe";//string.Empty;
         var msg=string.Empty;
         var pageSize = 10;
         var pageIndex = 1;
