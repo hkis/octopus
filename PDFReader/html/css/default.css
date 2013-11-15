@@ -41,3 +41,4 @@ body{margin: 0px;padding: 0px; background: #f2e4c7;}
 .pdfList th{ border-right:2px solid #000; background-color: #333; text-shadow: 0 0 5px #FFF;box-shadow: 0 0 2px #999 inset; height: 50px; font-size:20px; color:#fff; padding:0 20px; white-space:nowrap; border-bottom: 2px solid #000;border-radius:5px;}
 .pdfList a{ text-decoration: none; color:#f2e4c7; text-shadow: 0 0 5px #000;}
 .pdfList a:hover{ text-decoration: underline; color:#FFF;}
+

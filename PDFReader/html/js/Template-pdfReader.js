@@ -280,8 +280,7 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
             scrollEvent : function(arg){
                 var $this = this;
                 $this.timer = '';
-                arg[0].onscroll = function(e){//这里使用原生监听，是因为IE8-不支持在修改scrollTop的情况下触发jquery的scroll事件
-                    e = e || window.event;
+                arg.scroll(function(e){
                     var scrollTop = $this.scrollBody.scrollTop();
                     var parMain = $this.arg.main;
                     if($this.arg.type == 'rich'){
@@ -304,7 +303,7 @@ if(!Bing.tools){//这里鉴定工具函数是否初始化，防止多次初始�
                             }
                         }
                     }
-                }
+                });
             },
             returnClient : function(arg){
                 arg = arg || $('body');
