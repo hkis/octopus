@@ -1,0 +1,106 @@
+body{margin: 0px;padding: 0px; width:100%; background: #f2e4c7; 
+    scrollbar-face-color:#784646;
+    scrollbar-highlight-color:#f2e4c7;
+    scrollbar-3dlight-color:#f2e4c7;
+    scrollbar-darkshadow-color:#f2e4c7;
+    scrollbar-arrow-color:#784646;
+    scrollbar-track-color:#f2e4c7;
+}
+
+::-webkit-scrollbar-track-piece{
+	background-color:#f2e4c7;/*滚动条的背景颜色*/
+}
+::-webkit-scrollbar-track-piece:hover{
+	background-color:#FFF;/*滚动条的背景颜色*/
+}
+::-webkit-scrollbar{
+	width:15px;/*滚动条的宽度*/
+	height:8px;/*滚动条的高度*/
+}
+::-webkit-scrollbar-thumb{/*垂直滚动条的样式*/
+	height:18px;
+	background-color:#784646;
+	border-radius:4px;
+	border: 2px solid #f2e4c7;
+}
+::-webkit-scrollbar-thumb:hover{/*滚动条的hover样式*/
+	height:18px;
+	background-color:#000;
+	border-radius:4px;
+}
+
+.pdf-main-body{position:relative;font-family: Lucida Grande; background-color: #f2e4c7; margin:0px; box-shadow:0 0 20px #000; height:750px; width:1050px;display:block; border-radius: 5px;}
+a:link,a:visited,a:active{background: none;}
+/*缩略图*/
+.pdf-main-body .thumbnails{  background-color: #784646; width: 200px; height:96%; position:relative; float: left; box-shadow:0 0 10px #999 inset;overflow: auto;}
+.pdf-main-body .thumbnails ul{font-size: 12px; text-shadow: 0 0 1px #999; color:#000; margin:0px auto; width:100%; padding:0px; list-style: none; position:relative;  display: block; box-shadow: 0 0 10px #999;}
+.pdf-main-body .thumbnails ul li{ cursor: pointer; border-radius: 10px; width:100%; *width:92%; margin:0px; height:226px; padding:0px; display:block;position:relative;}
+.pdf-main-body .thumbnails ul li.hover{ background: #FFF; box-shadow: 0 0 10px #784646 inset;}
+.pdf-main-body .thumbnails ul img{ box-shadow: 0 2px 10px #784646;width:150px; position: relative; margin:0 auto; display:block; vertical-align:bottom;}
+.pdf-main-body .thumbnails ul span{position:relative; display:block; text-align:center; width:150px; margin:0 auto;}
+/*主阅读窗*/
+.pdf-main-body .mainBody{ width:850px; height:96%; position:relative; float: right;overflow: auto;box-shadow:0 0 10px #999 inset;}
+.pdf-main-body .mainBody .returnToTop{ width:41px; height:42px; right:0px; background:url(../img/top.png); text-align: center; cursor:pointer; font-size:8px; position:absolute; z-index:10;}
+.pdf-main-body .mainBody ul{ margin:0px auto; cursor:move; width:794px; padding:0px;list-style: none;position:relative; font-size:20px;}
+.pdf-main-body .mainBody li{ margin:0px;padding:0px; height:1122px; position:relative; vertical-align:bottom;}
+.pdf-main-body .mainBody li img{border-radius: 5px; box-shadow: 2px 2px 10px #000;}
+.pdf-main-body .mainBody li .pageNumber{ position:absolute; display:block; bottom:10px; text-align:center; width:100%; text-shadow: 0 0 2px #999; display:block;z-index:2;left:0px;}
+/*头部*/
+.pdf-main-body .titleBar{ border-radius: 0 0 15px 0; position:relative; width:100%; margin:0px auto; height:50px; border-bottom:20px solid #784646; z-index:10; box-shadow: 0px 0px 10px #000;}
+.pdf-main-body .titleBar > span{ line-height:50px; margin:0px 10px ; font-family: Lucida Grande; text-shadow:0px 0px 1px #784646; color:#2c2c2c; font-size: 20px;}
+.pdf-main-body .titleBar span input{ border:1px solid #784646; border-radius: 5px; background:#f2e4c7; width:35px; font-size: 20px; text-align:right;}
+.pdf-main-body .titleBar span input::selection{background: #784646; color: #f2e4c7;}
+.pdf-main-body .titleBar span input::-moz-selection{ background: #784646; color: #f2e4c7;}
+.pdf-main-body .titleBar .loading{ background:url(../img/loading1.gif) no-repeat center center; right: 30px; width:42px; display:none; height:42px; display:block;position:absolute; top:4px;}
+.pdf-main-body .titleBar .pageUpDown{top:8px; right:100px; float: right; display:block; width:200px;position:absolute;}
+.pdf-main-body .titleBar .pageUpDown a{ float:right; line-height: 30px; height:30px; width:30px;box-shadow: 0 0 2px #333; text-align: center;font-size:20px; text-decoration: none; color:#784646; display:block;  margin:2px 3px 0px 2px; border: 1px solid #333; border-radius:5px 10px 2px 10px; background-color: #f2e4c7;}
+.pdf-main-body .titleBar .pageUpDown a:hover{ color:#f2e4c7; background-color: #784646; box-shadow: 0 0 2px #000 inset; border: 1px solid #000;}
+/*列表*/
+.pdfList{ margin-top:10px;color:#f2e4c7;font-family: 楷体;}
+.pdfList table{ border:none;background-color: #333; }
+.pdfList tr{ height:40px; border-radius:5px;}
+.pdfList td{background-color: #784646;
+    background: -ms-linear-gradient(top,#784646,#842B00);
+    background: -webkit-linear-gradient(top,#784646,#842B00);
+    background: -moz-linear-gradient(top,#784646,#842B00);
+    background: -o-linear-gradient(top,#784646,#842B00);
+    border-right:2px solid #000; box-shadow: 0 0 2px #999 inset; text-shadow: 0 0 5px #000; padding:0 20px; border-bottom: 2px solid #000;overflow:hidden;  white-space:nowrap;}
+.pdfList th{ border-right:2px solid #000; background-color: #333; text-shadow: 0 0 5px #FFF;box-shadow: 0 0 2px #999 inset; height: 50px; font-size:20px; color:#fff; padding:0 20px; white-space:nowrap; border-bottom: 2px solid #000;border-radius:5px;}
+.pdfList a{ display:block; text-decoration: none; color:#f2e4c7; text-shadow: 0 0 5px #000;}
+.pdfList a:hover{ text-decoration: underline; color:#FFF;}
+
+/*头部导航*/
+.navigationBar{ width:100%; height:40px; background-color: #784646;position: relative;
+    background: -ms-linear-gradient(top,#784646,#000);
+    background: -webkit-linear-gradient(top,#784646,#000);
+    background: -moz-linear-gradient(top,#784646,#000);
+    background: -o-linear-gradient(top,#784646,#000);
+    color:#FFF;box-shadow: 0 0 10px #000;
+}
+.navigationBar a{ text-decoration: none; color:#f2e4c7; text-shadow:0 0 5px #000;  font-family: 楷体; font-size:25px;}
+.navigationBar a:link{background: none;}
+.navigationBar a:visited{background: none;}
+.navigationBar a:hover{ text-decoration:underline; color:#FFF; text-shadow: 0 0 2px #FFF;}
+.navigationBar a:active{background: none;}
+.navigationBar span{ margin:10px; line-height:40px;}
+
+/*搜索框*/
+.search{display: block;position:absolute; width:540px;height: 48px; left:50%; font-family:楷体;top:200px; margin-left: -270px;}
+.search input{ float: left; position:relative; display:block; font-size: 20px; }
+.search .searchInput{height:36px; line-height: 36px; width:400px; padding-left: 10px; border:2px solid #FFC125; box-shadow:  0 0 5px #f2e4c7 inset;}
+.search .submit{ width:100px;height:42px; *height:42px;padding:0px;margin:0px 10px; border-radius: 5px; border:2px solid #FFB90F; background-color: #FFC125; cursor:pointer;}
+.search .submit:hover{ box-shadow: 0 0 10px #FFC125;}
+.error{ font-size:50px;color: #784646;text-align: center;top: 20px;position: relative;text-shadow: 0 0 10px #784646;}
+.search .sending{ display:none;width:80px;height:42px;background:url(../img/loading1.gif) no-repeat;float:left;padding-left:42px;position:relative; font-size:14px; line-height: 42px;color: #784646;text-shadow: 0 0 1px #784646;}
+/*分页*/
+.pages{ margin:10px; padding:0px; font-family: 楷体; color:#784646; display:block; position:relative}
+.pages li{ display:inline; list-style:none; margin:0px 5px; padding:0px;}
+.pages a{padding:8px; background-color: #784646;
+    background: -ms-linear-gradient(top,#784646,#842B00);
+    background: -webkit-linear-gradient(top,#784646,#842B00);
+    background: -moz-linear-gradient(top,#784646,#842B00);
+    background: -o-linear-gradient(top,#784646,#842B00);
+    height:30px; line-height: 30px; color:#FFF; box-shadow: 0 0 5px #333;text-decoration: none; border-radius: 5px;}
+.pages span{padding:8px; background: #999; height:30px; line-height: 30px; color:#FFF; box-shadow: 0 0 5px #333;text-decoration: none; border-radius: 5px;}
+.pages a:hover{background: #333;}
+.pages .current{ background: #000;}
